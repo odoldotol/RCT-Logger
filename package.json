@@ -1,0 +1,31 @@
+{
+  "name": "rct-logger",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "engines": {
+    "node": "18.12.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odoldotol/RCT-Logger.git"
+  },
+  "author": "lygorithm",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/odoldotol/RCT-Logger/issues"
+  },
+  "homepage": "https://github.com/odoldotol/RCT-Logger#readme",
+  "devDependencies": {
+    "@types/node": "^22.10.6",
+    "@types/serialport": "^10.2.0",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.1",
+    "serialport": "^13.0.0"
+  }
+}
