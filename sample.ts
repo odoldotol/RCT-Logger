@@ -9,10 +9,14 @@ const port = new SerialPort({
   dataBits: 8,       // 데이터 비트
   stopBits: 1,       // 스톱 비트
   parity: 'none',    // 패리티 없음
-  autoOpen: true,    // 자동으로 포트 열기
+  autoOpen: false,   // 자동으로 포트 열기 비활성화
   lock: true,        // 잠금 활성화
   rtscts: false,     // 하드웨어 흐름 제어 비활성화
 });
+
+SerialPort.list().then((ports) => {})
+
+port.open()
 
 // ByteLength 파서를 사용해 4바이트(32bit)씩 데이터 분리
 const parser = port.pipe(new ByteLengthParser({ length: 4 }));
@@ -72,3 +76,52 @@ function isStartValid(buffer: Buffer) {
 function isEndValid(buffer: Buffer) {
   return buffer[buffer.length - 1] === 0xAA;
 }
+
+port.on('open', () => {
+  console.log('Serial port is opened');
+});
+
+port.on('close', () => {
+  console.log('Serial port is closed');
+});
+
+port.on('error', (err) => {
+  console.error('Error:', err);
+});
+
+// 시리얼 포트 닫기
+process.on('SIGINT', () => {
+  port.close((err) => {
+    if (err) {
+      console.error('Error:', err);
+    }
+    process.exit(0);
+  });
+});
+
+// 포트 열기
+port.open((err) => {
+  if (err) {
+    console.error('Error:', err);
+  }
+});
+
+parser.on('open', () => {
+  console.log('Parser is opened');
+});
+
+parser.on('close', () => {
+  console.log('Parser is closed');
+});
+
+parser.on('error', (err) => {
+  console.error('Error:', err);
+});
+
+parser.on('data', (data) => {
+  console.log('Data:', data);
+});
+
+parser.on('drain', () => {
+  console.log('Drain');
+});

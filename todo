@@ -1,4 +1,8 @@
-node 버전
-serialport 13.0.0 은 node 20.0.0 이상이어야함.
-20 이상 환경구성 가능한지 확인하고 버전 정리 필요.
-docker, pm2 등 구성 결정 필요.
+제품 암호화 방법
+
+라즈베리파이 상태체크 LED
+rct_logger_boot.sh
+- 환경변수에서 A LED 포트 읽고 A-HIGH
+
+
+로그 로테이트
