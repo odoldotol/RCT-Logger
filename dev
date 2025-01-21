@@ -1,0 +1,58 @@
+# Hardware
+Raspberry Pi 4 Model B
+CPU https://www.raspberrypi.com/documentation/computers/processors.html#bcm2711
+
+# OS
+Raspberry Pi OS (64-bit)
+
+SanDisk Extreme | micreSDXC UHS-I Card
+
+Raspberry Pi Imager
+
+# Wifi
+# SSH
+- USB Cable
+
+
+
+
+
+# IO
+
+## onoff
+### Pullup and Pulldown Resistors
+Configuring
+https://forums.raspberrypi.com/viewtopic.php?f=117&t=208748
+
+
+
+# Serial, UART, 동기화
+버퍼와 비이너리코드 이해(비트, 바이트, 2진수, 16진수)
+동기화 검증 파싱 프로세싱 저장 전략
+시공간복잡도에 주의해야할듯
+
+# node.js, stream
+
+# 수신기의 ok/error 상태체크와 UART 통신 스트림간의 동기화
+수신기는 레지스터에 직접 1비트씩 기록하며 검증하는 등 최적화되어 내 서버보다 더 빠르지 않을까?
+이 부분 기계오면 충분한 테스트로 최적화 해야한다.
+
+
+# USB
+마운트(자동/수동), 컨테이너 볼륨 마운트, 권한, udev 규칙, 안전한 언마운트, 불안전한(강제) 언마운트
+
+# 다운로드
+시리얼 데이터를 읽고 처리하는게 제일 급한 작업임. 다운로드는 좀 느려져도 됨.
+다운로드는 너무 오래 cpu 를 점유하면 안됨. (라이베리는 뭐드코어같은데? 노드는 싱글코어...)
+충분히 쪼개서 스트림으로 읽고 변환하고 쓰자.
+이 부분도 나중에 테스트 하면서 최적화 필요함.
+
+# database
+Log-Structured File (System)
+
+
+# 디자인
+아무리 고민해봐도 IO 와 앱을 분리하는게 좋다고 판단.
+IO | IO인터페이스 | 앱 | 데이터베이스
+IO인터페이스 전역처리
+앱 부분은 라우터, 컨트롤러, 프로바이더 등의 개념을 써서 내가 익숙한 웹서버의 아키텍처를 이용.

@@ -4,14 +4,14 @@
 | 동기 Word | 정보 Word 1 | .... | 정보 Word 6 |
 ```
 
-1 Cycle = 7 Word = 224 bits
+1 Cycle = 7 Word = 224 bits = 28 byte
 
 </br>
 </br>
 
 # 2. Word
 
-1 Word = 32 bits
+1 Word = 32 bits = 4 byte
 
 </br>
 

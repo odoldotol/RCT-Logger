@@ -1,8 +1,5 @@
-제품 암호화 방법
-
 라즈베리파이 상태체크 LED
 rct_logger_boot.sh
 - 환경변수에서 A LED 포트 읽고 A-HIGH
-
 
 로그 로테이트
