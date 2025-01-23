@@ -29,10 +29,10 @@ port.on('close', () => {
 port.open();
 
 port.on('data', (data: Buffer) => {
-  console.log('Raw Binary Data:', data);
+  // console.log('Raw Binary Data:', data);
 
-  // const binaryString = data.toString('binary');
-  // console.log('Binary String:', binaryString);
+  const binaryString = data.toString('binary');
+  console.log('Binary String:', binaryString);
 
   // serialStream.next(binaryString);
 });
