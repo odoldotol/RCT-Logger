@@ -30,6 +30,15 @@ port.open();
 
 port.on('data', (data: Buffer) => {
   // console.log('Raw Binary Data:', data);
+  
+  // Buffer를 바이너리 문자열로 변환
+  const binaryStrings = Array.from(data)
+  .map(byte => byte.toString(2).padStart(8, '0')) // 각 바이트를 2진수로 변환하고 8비트로 맞춤
+  .join(' '); // 각 바이트를 공백으로 구분
+
+console.log(binaryStrings);
+// 결과: "10000000 00000000 00000000 00000000 00000000"
+
 
   const binaryString = data.toString('binary');
   console.log('Binary String:', binaryString);
