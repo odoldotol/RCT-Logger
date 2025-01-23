@@ -10,4 +10,6 @@ setTimeout((_: unknown) => {
 
 process.on('SIGINT', _ => {
   led.unexport();
+  console.log('LED is off');
+  process.exit();
 });
