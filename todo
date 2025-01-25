@@ -3,3 +3,8 @@ rct_logger_boot.sh
 - 환경변수에서 A LED 포트 읽고 A-HIGH
 
 로그 로테이트
+
+USB Cable 이용한 SSH 접속
+
+WIFI, 블루투스 등 불필요한 장치 끄기
+

@@ -1,57 +1,3 @@
-import * as X from "rxjs";
-
-const serialStream = new X.Subject();
-
-const repo = {
-  write: async (data: any) => {
-    console.log(data);
-  }
-};
-
-const processor = {
-  process: (data: any) => {
-    return data;
-  }
-};
-
-serialStream.pipe(
-  X.bufferTime(1000),
-  X.map(processor.process),
-).subscribe(repo.write)
-.unsubscribe();
-
-import { SerialPort } from 'serialport';
-
-// UART 포트 설정
-const port = new SerialPort({
-  path: '/dev/serial0',
-  baudRate: 1200,
-  autoOpen: true,
-  highWaterMark: 512,
-});
-
-// 데이터 수신 (버퍼 처리)
-port.on('data', (data: Buffer) => {
-  console.log('Raw Binary Data:', data);
-
-  // 바이너리 데이터를 처리하는 로직 추가
-  const binaryString = data.toString('binary'); // 바이너리 문자열 변환
-  console.log('Binary String:', binaryString);
-
-  serialStream.next(binaryString);
-});
-
-// 에러 핸들링
-port.on('error', (err) => {
-  console.error('Error:', err.message);
-
-  serialStream.error(err);
-});
-
-
-
-
-
 const findSyncIdx = (arr: (0 | 1)[]) => {
   let equal: 0 | 1 = 1;
   let lowLength = 28;
@@ -87,3 +33,17 @@ const findSyncIdx = (arr: (0 | 1)[]) => {
     }
   }
 };
+
+/**
+ * 좌우 대칭인지? 예시
+ */
+function isSymmetric(buffer: Buffer) {
+  let pointerInc = 0;
+  let pointerDec = buffer.length - 1;
+  while (pointerInc < pointerDec) {
+    if (buffer[pointerInc++] !== buffer[pointerDec--]) {
+      return false;
+    }
+  }
+  return true;
+}
