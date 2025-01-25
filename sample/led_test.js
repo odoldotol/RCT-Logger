@@ -1,9 +1,9 @@
 // GPIO18 에 연결된 LED 3초간 켜고 끄기
 
-import { Gpio } from 'pigpio';
+const Gpio = require('pigpio').Gpio;
 
 const led = new Gpio(
-  530,
+  18,
   {
     mode: Gpio.OUTPUT
   }
