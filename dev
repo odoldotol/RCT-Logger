@@ -2,6 +2,7 @@
 Raspberry Pi 4 Model B, 4GB RAM, BCM2711(4Core&Thread)
 SanDisk Extreme | microSDXC UHS-I Card, 64GB
 Raspberry Pi OS Lite (64-bit), 438MB, Kernel version: 6.6, Debian version: 12 (bookworm)
++ RTC 추가해야함
 
 # 현장, 전원 중단 대응 (베터리를 쓸 수 없는 환경)
 - 오버레이 파일 시스템으로 microSD 보호
@@ -57,7 +58,7 @@ IO_SClK 의 상승엣지 이벤트마다 IO_DATA 읽어서 1 bit 씩 수신.
 1350bps 정도는 nodejs 로도 동기통신을 구현하기에 충분하다고 판단.
 - onoff < node-libgpiod < pigpio
 - child_process, SharedBuffer, ...
-- taskset, numactl, ...
+- taskset, numactl, cgroups...
 - setPriority, chrt, nice, ...
 
 - 속도 테스트 도구 마련할것
