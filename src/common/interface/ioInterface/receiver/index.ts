@@ -6,4 +6,5 @@ export interface ReceiverInterfaceI {
   serial: ReceiverSerialInterfaceI;
 }
 
+export * from "./serial";
 export * from "./status";

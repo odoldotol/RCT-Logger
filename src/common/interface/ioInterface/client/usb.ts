@@ -3,15 +3,21 @@ import { EventEmitter } from "stream";
 export interface ClientUSBStorageInterfaceI
   extends EventEmitter<ClientUSBStorageInterfaceEventMap>
 {
-  isMounted(): boolean;
+  isMounted(usb: USBStorage): boolean;
 }
 
-type ClientUSBStorageInterfaceEventMap = {
-  [K in ClientUSBStorageInterfaceEvent]: []
+export type ClientUSBStorageInterfaceEventMap = {
+  [K in ClientUSBStorageInterfaceEvent]: [USBStorage];
 };
 
 export const enum ClientUSBStorageInterfaceEvent {
   Mounted = "mounted",
   Unmounted = "unmounted",
   Done = "done",
+  AllUnmounted = "allUnmounted",
 }
+
+export type USBStorage = {
+  dir: string;
+  // TODO: Add more properties
+};

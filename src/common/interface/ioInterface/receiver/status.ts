@@ -6,7 +6,7 @@ export interface ReceiverStatusInterfaceI
   isOn(): boolean;
 }
 
-type ReceiverStatusInterfaceEventMap = {
+export type ReceiverStatusInterfaceEventMap = {
   [K in ReceiverStatusInterfaceEvent]: []
 };
 

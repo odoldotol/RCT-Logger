@@ -1,10 +1,13 @@
+import { Subject } from "rxjs";
+
 export type LEDInterfacesI = Record<LEDName, LEDInterfaceI>;
 
-export interface LEDInterfaceI {
+export interface LEDInterfaceI
+  extends Subject<LEDData>
+{
   on(): void;
   off(): void;
   blinkOnce(ms?: number): void;
-  blink(ms?: number): void;
 }
 
 export const enum LEDName {
@@ -14,4 +17,9 @@ export const enum LEDName {
   D = "D",
   E = "E",
   F = "F",
+}
+
+export const enum LEDData {
+  On = 1,
+  Off = 0,
 }
