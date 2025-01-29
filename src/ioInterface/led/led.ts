@@ -1,12 +1,7 @@
 import { Subject } from "rxjs";
-import {
-  LEDData,
-  LEDInterfaceI
-} from "src/common";
 
 export class LEDInterface
   extends Subject<LEDData>
-  implements LEDInterfaceI
 {
   constructor() {
     super();
@@ -25,4 +20,9 @@ export class LEDInterface
     setTimeout(() => this.off(), ms);
   }
 
+}
+
+export const enum LEDData {
+  On = 1,
+  Off = 0,
 }

@@ -1,9 +1,5 @@
 import {
-  ClientUSBStorageInterfaceEvent,
-  ClientUSBStorageInterfaceEventMap,
-  ClientUSBStorageInterfaceI,
   Logger,
-  USBStorage
 } from "src/common";
 import { EventEmitter } from "stream";
 
@@ -13,7 +9,6 @@ import { EventEmitter } from "stream";
  */
 export class ClientUSBStorageInterface
   extends EventEmitter<ClientUSBStorageInterfaceEventMap>
-  implements ClientUSBStorageInterfaceI
 {
   private readonly logger = new Logger(ClientUSBStorageInterface.name);
   private readonly mountedUSBStorageSet = new Set<USBStorage>();
@@ -27,7 +22,7 @@ export class ClientUSBStorageInterface
 
     this.on(ClientUSBStorageInterfaceEvent.Unmounted, (usb) => {
       this.mountedUSBStorageSet.delete(usb) || this.logger.warn(`Unmounted USBStorage not found: ${usb}`);
-      if (this.mountedUSBStorageSet.size === 0) {
+      if (this.mountedUSBStorageSet.size == 0) {
         this.emit(ClientUSBStorageInterfaceEvent.AllUnmounted, usb);
       }
     });
@@ -38,3 +33,19 @@ export class ClientUSBStorageInterface
   }
 
 }
+
+export type ClientUSBStorageInterfaceEventMap = {
+  [K in ClientUSBStorageInterfaceEvent]: [USBStorage];
+};
+
+export const enum ClientUSBStorageInterfaceEvent {
+  Mounted = "mounted",
+  Unmounted = "unmounted",
+  Done = "done",
+  AllUnmounted = "allUnmounted",
+}
+
+export type USBStorage = {
+  dir: string;
+  // TODO: Add more properties
+};

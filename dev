@@ -29,26 +29,12 @@ USB Cable 이용한 SSH 접속
 (추가)Wifi, 블루투스 등 불필요한 장치 끄기
 
 # GPIO
-
-## node-libgpiod
-/dev/gpiochipX
-
-## onoff
-/sys/class/gpio
-OK
-
 ## pigpio
-/dev/gpiomem
-
+최종 선택
 
 # Receiver Status 신호 문제
-하강엣지 0.01ms 단위로 수십개 검출되거나,
-상승엣지 없이 하강엣지만 매 클락(0.75ms)마다 검출되거나, 등.
-- 풀업,풀다운저항 확인
-- 오실로스코프확인
-- 불안정할경우 디바운싱 고려
-
-## 디바운싱
+- 디바운싱
+- 타이머
 
 # Serial Data
 GPIO 2개(IO_SClK, IO_DATA)이용
@@ -66,6 +52,7 @@ IO_SClK 의 상승엣지 이벤트마다 IO_DATA 읽어서 1 bit 씩 수신.
 
 # Find SyncWord
 각 SyncWord 사이의 Word 들을 전달. 4~6 Words.
+- 무선통신 노이즈 생각보다 심각... 미팅 필요!
 
 # Validation
 16 bits error limit

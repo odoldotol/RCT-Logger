@@ -1,4 +1,3 @@
-export * from './ioInterface';
 export * from './io';
 export * from './app';
 export * from './database';
