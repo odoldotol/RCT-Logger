@@ -30,29 +30,27 @@ USB Cable 이용한 SSH 접속
 
 # GPIO
 ## pigpio
-최종 선택
+alert 은 수 마이크로초 단위로 뱐화를 감지하지만 이벤트 핸들러가 실행되는 타이밍의 오차는 1ms 까지 올라간다.
+interrupt 를 사용해야하는 것 같은데 관련 함수에 문제가 있어보임.
+
+## onoff
+edge 는 수십 마이크로초 의 오차를 가지고 이벤트 핸들러를 실행할 수 있다.
 
 # Receiver Status 신호 문제
 - 디바운싱
 - 타이머
 
 # Serial Data
-GPIO 2개(IO_SClK, IO_DATA)이용
-평균 0.74ms 정도마다 1 bit 전송. (1200bps 이랬는데 실제로 찍어보니 1350bps)
+GPIO 2개(SYNC_CLK, SERIAL_DATA)이용
+SYNC_CLK 의 상승엣지, 1200bps
 
-IO_SClK 의 상승엣지 이벤트마다 IO_DATA 읽어서 1 bit 씩 수신.
-1350bps 정도는 nodejs 로도 동기통신을 구현하기에 충분하다고 판단.
 - onoff < node-libgpiod < pigpio
-- child_process, SharedBuffer, ...
-- taskset, numactl, cgroups...
-- setPriority, chrt, nice, ...
-
-- 속도 테스트 도구 마련할것
-수신기 클락이 데이터의 정중앙 타이밍이니 한 클락의 절반만큼 오차는 단 한번이라도 절대 안됨.
+- child_process
+- stdio(Uint8Array) < 프로세스간 공유메모리
+- priority, scheduling policy
 
 # Find SyncWord
 각 SyncWord 사이의 Word 들을 전달. 4~6 Words.
-- 무선통신 노이즈 생각보다 심각... 미팅 필요!
 
 # Validation
 16 bits error limit

@@ -1,4 +1,35 @@
 const Gpio = require('pigpio').Gpio;
+const OoffGpio = require('onoff').Gpio;
+
+const onOffSclk = new OoffGpio(523, 'in', 'rising');
+const onOffData = new OoffGpio(522, 'in');
+const onOffReceiverStatus = new OoffGpio(534, 'in', 'both');
+
+let buffer = [];
+
+console.time('interrupt');
+
+onOffSclk.watch((err, value) => {
+  if (err) {
+    console.error(err);
+    throw err;
+  }
+
+  if (value === 1) {
+    // onOffData.read((err, value) => {
+    //   if (err) {
+    //     throw err;
+    //   }
+    //   buffer.push(`${value}`);
+    // });
+    console.timeEnd('interrupt');
+    console.time('interrupt');
+    a();
+  } else {
+    // Must Not Reach Here
+    console.error('Clock is falling edge');
+  }
+});
 
 const clk = new Gpio(11, {
   mode: Gpio.INPUT,
@@ -26,17 +57,25 @@ const cycleBuffer = new Uint8Array(4096);
 
 clk.glitchFilter(20);
 
-clk.on('alert', level => {
-  if (level == 1) {
-    a();
-  }
-});
+// console.time("sync")
+
+// clk.on('alert', level => {
+//   if (level == 1) {
+//     console.timeEnd("sync")
+//     console.time("sync")
+//     a();
+//   }
+// });
 
 
 
 
 clk.enableAlert();
 
+process.on('SIGINT', () => {
+  clk.disableAlert();
+  process.exit(0);
+});
 
 function a() {
   const level = serial.digitalRead();
