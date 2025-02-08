@@ -1,5 +1,5 @@
 import { Router } from "./router";
-import { Router as RouterI } from "src/common";
+import { Router as RouterI } from "../../common";
 
 export class App
   implements RouterI

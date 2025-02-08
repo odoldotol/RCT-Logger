@@ -1,4 +1,4 @@
-import { IO as IOI } from "src/common";
+import { IO as IOI } from "../../common";
 import { Receiver } from "./receiver";
 
 export class IO

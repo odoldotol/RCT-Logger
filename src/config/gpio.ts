@@ -3,7 +3,7 @@ import {
   GpioName,
   Level,
   PullUpDown
-} from "src/common";
+} from "../common";
 import { Config } from "./config";
 import { EnvKey } from "./const";
 

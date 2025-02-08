@@ -1,5 +1,5 @@
-import { B103ExtractedData } from "src/common";
-import { LogRepository } from "src/logger/database";
+import { B103ExtractedData } from "../../../common";
+import { LogRepository } from "../../../logger/database";
 
 export class LogService {
 

@@ -1,4 +1,4 @@
-import { Byte19LogDatabase } from "src/database";
+import { Byte19LogDatabase } from "../../database";
 import { IOInterface } from "../ioInterface/ioInterface";
 import { App } from "./app";
 import { ReceiverRouter, Router } from "./router";

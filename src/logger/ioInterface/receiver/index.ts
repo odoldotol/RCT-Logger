@@ -2,7 +2,7 @@ import {
   Observable,
   Subject
 } from "rxjs";
-import { B103ExtractedData } from "src/common";
+import { B103ExtractedData } from "../../../common";
 
 export class ReceiverInterface {
 

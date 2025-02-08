@@ -1,4 +1,4 @@
-import { IO, Level } from "src/common";
+import { IO, Level } from "../../../../common";
 import { ReceiverSerialClk } from "./clk";
 import { ReceiverSerial } from "./serial";
 

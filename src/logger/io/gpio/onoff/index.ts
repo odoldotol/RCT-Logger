@@ -1,6 +1,6 @@
 import { Gpio as Onoff } from 'onoff';
-import { Direction } from 'src/common';
-import { GpioConfig } from 'src/config';
+import { Direction } from '../../../../common';
+import { GpioConfig } from '../../../../config';
 
 export abstract class GpioOnoff
   extends Onoff

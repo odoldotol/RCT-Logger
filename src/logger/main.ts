@@ -1,8 +1,8 @@
 import { IOInterfaceFactory } from "./ioInterface";
 import { IOFactory } from "./io";
 import { AppFactory } from "./app";
-import { Byte19LogDatabase } from "src/database";
-import { Config } from "src/config/init";
+import { Byte19LogDatabase } from "../database";
+import { Config } from "../config/init";
 
 async function bootstrap() {
 

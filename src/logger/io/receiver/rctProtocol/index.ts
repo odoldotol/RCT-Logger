@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer'
-import { Level } from 'src/common';
+import { Level } from '../../../../common';
 import {
   Transform,
   TransformCallback

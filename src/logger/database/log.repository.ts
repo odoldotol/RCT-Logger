@@ -1,6 +1,15 @@
 import { Observable, Subject } from "rxjs";
-import { B103ExtractedData, B12DataWord6, B19Data, B96ExtractedDataWord6, getB12DataWord6, getB1Subject, getB6Timestamp, getB96ExtractedDataWord6 } from "src/common";
-import { Byte19LogDatabase as Database } from "src/database";
+import {
+  B103ExtractedData,
+  B12DataWord6,
+  B19Data,
+  B96ExtractedDataWord6,
+  getB12DataWord6,
+  getB1Subject,
+  getB6Timestamp,
+  getB96ExtractedDataWord6
+} from "../../common";
+import { Byte19LogDatabase as Database } from "../../database";
 
 export class LogRepository {
 

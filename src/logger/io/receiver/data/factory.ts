@@ -1,8 +1,8 @@
-import { Config } from "src/config/init";
+import { Config } from "../../../../config/init";
 import { ReceiverData } from ".";
 import { ReceiverSerialClk } from "./clk";
 import { ReceiverSerial } from "./serial";
-import { GpioName } from "src/common";
+import { GpioName } from "../../../../common";
 
 class ReceiverDataFactoryStatic {
 

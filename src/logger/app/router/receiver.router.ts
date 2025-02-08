@@ -1,9 +1,9 @@
-import { ReceiverInterface } from "src/logger/ioInterface";
+import { ReceiverInterface } from "../../..//logger/ioInterface";
 import { Observable } from "rxjs";
 import {
   B103ExtractedData,
   Router
-} from "src/common";
+} from "../../..//common";
 import { LogController } from "../log";
 
 export class ReceiverRouter

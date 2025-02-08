@@ -3,10 +3,10 @@ import {
   Direction,
   IO,
   PullUpDown
-} from 'src/common';
+} from '../../../../common';
 import {
   GpioConfig,
-} from 'src/config';
+} from '../../../../config';
 
 export abstract class GpioPigpio
   extends Pigpio

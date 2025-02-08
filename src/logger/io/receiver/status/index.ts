@@ -1,8 +1,8 @@
-import { GpioConfig } from "src/config";
+import { GpioConfig } from "../../../../config";
 import { GpioPigpio } from "../../gpio";
 import {
   Level
-} from "src/common";
+} from "../../../../common";
 import * as X from "rxjs";
 
 /**

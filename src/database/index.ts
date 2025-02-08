@@ -9,8 +9,8 @@ import {
   getKORMidnightMs,
   getKORMs,
   unpackUTCMsB6Timestamp,
-} from 'src/common';
-import { DatabaseConfig } from 'src/config';
+} from '../common';
+import { DatabaseConfig } from '../config';
 import { Readable } from 'stream';
 
 export class Byte19LogDatabase {

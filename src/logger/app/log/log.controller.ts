@@ -1,4 +1,4 @@
-import { B103ExtractedData } from "src/common";
+import { B103ExtractedData } from "../../../common";
 import { LogService } from "./log.service";
 
 

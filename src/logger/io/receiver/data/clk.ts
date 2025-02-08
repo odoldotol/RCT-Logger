@@ -1,5 +1,5 @@
 import { GpioOnoff } from "../../gpio";
-import { GpioConfig } from "src/config";
+import { GpioConfig } from "../../../../config";
 
 
 export class ReceiverSerialClk

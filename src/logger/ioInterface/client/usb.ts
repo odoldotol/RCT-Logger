@@ -1,6 +1,6 @@
 import {
   Logger,
-} from "src/common";
+} from "../../../common";
 import { EventEmitter } from "stream";
 
 /**

@@ -1,8 +1,8 @@
-import { GpioName } from "src/common";
+import { GpioName } from "../../common";
 import { IOInterface } from "../ioInterface/ioInterface";
 import { IO } from "./io";
 
-import { Config } from "src/config/init";
+import { Config } from "../../config/init";
 import { ReceiverStatus } from "./receiver/status";
 import { RCTProtocol } from "./receiver/rctProtocol";
 import { Receiver } from "./receiver";

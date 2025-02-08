@@ -7,14 +7,14 @@ import {
   packDateBuffer,
   SubjectValue,
   // Logger
-} from "src/common";
+} from "../../../common";
 import {
   HandlerArg,
   ReceiverStatus
 } from "./status";
 import {
   ReceiverInterface
-} from "src/logger/ioInterface";
+} from "../../../logger/ioInterface";
 import {
   ChildProcess,
   exec,

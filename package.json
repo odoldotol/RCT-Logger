@@ -10,6 +10,7 @@
     "build": "tsc --build",
     "clean": "tsc --build --clean",
     "cleanBuild": "tsc --build --clean && tsc --build",
+    "start:logger": "node dist/logger/main.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "ts-node": "ts-node"
   },

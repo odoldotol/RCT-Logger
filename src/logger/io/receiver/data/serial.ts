@@ -1,5 +1,5 @@
-import { GpioConfig } from "src/config";
-import { GpioPigpio } from "src/logger/io/gpio";
+import { GpioConfig } from "../../../../config";
+import { GpioPigpio } from "../../../../logger/io/gpio";
 
 export class ReceiverSerial
   extends GpioPigpio

@@ -1,4 +1,4 @@
-import { Router as RouterI } from 'src/common';
+import { Router as RouterI } from '../../..//common';
 import { ReceiverRouter } from './receiver.router';
 
 export * from './receiver.router';
