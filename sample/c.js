@@ -6,6 +6,11 @@ process.on("SIGINT", () => {
   onoffSclk.unexport();
 });
 
+process.on("SIGTERM", () => {
+  onoffSclk.unwatchAll();
+  onoffSclk.unexport();
+});
+
 process.on("message", (msg) => {
   if (msg == 1) {
     // console.time("rising");
@@ -35,8 +40,7 @@ onoffSclk.watch((err, value) => {
     // console.timeEnd("rising");
     // console.time("rising");
     // processSerial();
-    bitStorage[0] = serial.digitalRead();
-    process.stdout.write(bitStorage, (err) => {
+    process.stdout.write(Buffer.allocUnsafe(1).fill(serial.digitalRead()), (err) => {
       if (err) {
         process.stderr.write(`process.stdout.write error: ${err}\n`);
       }
@@ -46,5 +50,3 @@ onoffSclk.watch((err, value) => {
     process.stderr.write('sclk falling edge error\n');
   }
 });
-
-const bitStorage = new Uint8Array(1);

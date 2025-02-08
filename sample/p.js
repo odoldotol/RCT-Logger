@@ -1,4 +1,4 @@
-const { fork, execSync } = require("child_process");
+const { fork, execSync, exec } = require("child_process");
 const { fromEvent } = require('rxjs');
 const X = require('rxjs/operators');
 
@@ -9,6 +9,12 @@ const child = fork("c.js",
 process.on("SIGINT", () => {
   console.log('parent: SIGINT');
   child.kill("SIGINT");
+  process.exit();
+});
+
+process.on("SIGTERM", () => {
+  console.log('parent: SIGTERM');
+  child.kill("SIGTERM");
   process.exit();
 });
 
@@ -30,8 +36,36 @@ child.on('exit', (code, signal) => {
 
 child.on('spawn', () => {
   console.log(`child process spawned, pid: ${child.pid}`);
-  console.log(execSync(`chrt -f -p 99 ${child.pid}`).toString());
-  console.log(execSync(`chrt -p ${child.pid}`).toString());
+  // console.log(execSync(`chrt -f -p 99 ${child.pid}`).toString());
+  // console.log(execSync(`chrt -p ${child.pid}`).toString());
+
+  exec(`chrt -f -p 99 ${child.pid}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`chrt error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`chrt stderr: ${stderr}`);
+      return;
+    }
+    if (stdout) {
+      console.log(`chrt stdout: ${stdout}`);
+    }
+
+    exec(`chrt -p ${child.pid}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`chrt error: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`chrt stderr: ${stderr}`);
+        return;
+      }
+      if (stdout) {
+        console.log(`chrt stdout: ${stdout}`);
+      }
+    });
+  });
 });
 
 
@@ -44,11 +78,10 @@ child.stderr.on('error', (err) => {
   console.error('stderr error:', err);
 });
 
-fromEvent(child.stdout, 'data').pipe(
-  X.map(data => data[0]),
-).subscribe({
-  next: (level) => {
-    processSerial(level);
+fromEvent(child.stdout, 'data')
+.subscribe({
+  next: (data) => {
+    data.forEach(processSerial);
   },
   error: (err) => {
     console.error('stdout error:', err);
@@ -95,14 +128,14 @@ function processSerial(level) {
     isSyncWord &&
     syncronized
   ) {
-    if (cycleBufferIdx != 223) {
+    // if (cycleBufferIdx != 223) {
       console.log('cycleBufferIdx', cycleBufferIdx);
-    }
+    // }
     cycleBufferIdx = 0;
     // console.log(cycleBuffer.slice(cycleBufferIdx-31, cycleBufferIdx).join('') + "1");
     // process.stdout.write(cycleBuffer.slice(0, 223));
     // console.log(cycleBuffer);
-    ((() => {
+    (console.log((() => {
       let str = "";
       for (let i = 0; i < 192; i++) {
         str += cycleBuffer[i];
@@ -111,7 +144,7 @@ function processSerial(level) {
         }
       }
       return str;
-    })());
+    })()));
     // process.stdout.write("11111");
   } else if (
     isSyncWord &&

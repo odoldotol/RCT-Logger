@@ -7,9 +7,9 @@ import {
 import { Config } from "./config";
 import { EnvKey } from "./const";
 
-export class GpioConfig
+export class GpioConfigService
 {
-  private readonly GpioMap = new Map<GpioName, Gpio>();
+  private readonly GpioMap = new Map<GpioName, GpioConfig>();
 
   constructor(
     private readonly config: Config
@@ -23,26 +23,26 @@ export class GpioConfig
     const SERIAL_CLK_DEBOUNCE = Number(this.config.get(EnvKey.SERIAL_CLK_DEBOUNCE));
 
     if (
-      Number.isSafeInteger(AR20_PIN) &&
-      Number.isSafeInteger(AR20_DEBOUNCE) &&
-      Number.isSafeInteger(SERIAL_PIN) &&
-      Number.isSafeInteger(SERIAL_CLK_PIN) &&
-      Number.isSafeInteger(SERIAL_CLK_DEBOUNCE)
+      Number.isSafeInteger(AR20_PIN) && AR20_PIN != 0 &&
+      Number.isSafeInteger(AR20_DEBOUNCE) && AR20_DEBOUNCE != 0 &&
+      Number.isSafeInteger(SERIAL_PIN) && SERIAL_PIN != 0 &&
+      Number.isSafeInteger(SERIAL_CLK_PIN) && SERIAL_CLK_PIN != 0 &&
+      Number.isSafeInteger(SERIAL_CLK_DEBOUNCE) && SERIAL_CLK_DEBOUNCE != 0
     ) {
 
-      this.GpioMap.set(GpioName.RECEIVER_AR20, new Gpio(
+      this.GpioMap.set(GpioName.RECEIVER_AR20, new GpioConfig(
         AR20_PIN,
         Direction.In,
         PullUpDown.Down,
       ).setDebounceTimeout(AR20_DEBOUNCE));
 
-      this.GpioMap.set(GpioName.RECEIVER_SERIAL, new Gpio(
+      this.GpioMap.set(GpioName.RECEIVER_SERIAL, new GpioConfig(
         SERIAL_PIN,
         Direction.In,
         PullUpDown.Down,
       ));
 
-      this.GpioMap.set(GpioName.RECEIVER_SERIAL_CLK, new Gpio(
+      this.GpioMap.set(GpioName.RECEIVER_SERIAL_CLK, new GpioConfig(
         SERIAL_CLK_PIN,
         Direction.In,
         PullUpDown.Down,
@@ -53,13 +53,13 @@ export class GpioConfig
     }
   }
 
-  public getGpio(name: GpioName): Gpio {
+  public getGpio(name: GpioName): GpioConfig {
     return this.GpioMap.get(name)!;
   }
 
 }
 
-export class Gpio
+export class GpioConfig
 {
   public readonly initialValue: Level = Level.Low;
   public readonly activeLow: boolean | null = null;

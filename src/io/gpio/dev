@@ -1,2 +1,0 @@
-# pigpio
-엣지에 인터럽을 받는게 더 합리적이겠지만 C 바인딩 연결부 gpioSetISRFunc 함수에 문제가 있어보임. 차선택으로 alert를 사용
