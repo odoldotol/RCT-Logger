@@ -128,7 +128,7 @@ export class Receiver
 
   private listenChild() {
     this.child.on('spawn', () => {
-      console.log(`child process spawned, pid: ${this.child.pid}`);
+      this.logger.log(`Child spawned, PID: ${this.child.pid}`);
 
       exec(`chrt -f -p 99 ${this.child.pid}`, (error, stdout, stderr) => {
         if (error) {
@@ -140,7 +140,7 @@ export class Receiver
           return;
         }
         if (stdout) {
-          console.log(`chrt stdout: ${stdout}`);
+          this.logger.log(stdout);
         }
 
         exec(`chrt -p ${this.child.pid}`, (error, stdout, stderr) => {
@@ -153,7 +153,7 @@ export class Receiver
             return;
           }
           if (stdout) {
-            console.log(`chrt stdout: ${stdout}`);
+            this.logger.log(stdout);
           }
         });
       });
