@@ -1,5 +1,4 @@
-const os = require('os');
-os.setPriority(-20);
+// process.send(process.pid);
 
 process.on("SIGINT", () => {
   onoffSclk.unwatchAll();

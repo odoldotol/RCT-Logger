@@ -96,7 +96,11 @@ export class Receiver
 
   private waitChildActivating(): void {
     this.waitingActivatedChild = new Promise((resolve) => {
-      this.waitingActivatedChildResolver = resolve;
+      this.waitingActivatedChildResolver = () => {
+        resolve();
+        this.logger.log("Child activated.");
+        this.waitingActivatedChildResolver = null;
+      };
     });
   }
 
@@ -165,7 +169,7 @@ export class Receiver
           }
           break;
         case ChildSignal.Log:
-          message.log && this.logger.log(message.log);
+          message.log && this.logger.log(`Child | ${message.log}`);
           break;
         default:
           console.error(`child process unknown signal: ${message}`);

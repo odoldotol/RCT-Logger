@@ -39,7 +39,7 @@ export class Byte19LogDatabase {
       });
     }, this.databaseConfig.getBatchInterval());
 
-    this.logger.log('Batch Running.');
+    this.logger.log('Batch Running...');
   }
 
   public async stopBatch(): Promise<void> {

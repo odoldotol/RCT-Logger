@@ -11,7 +11,7 @@ export class Child {
       throw new Error("Child process does not have IPC.");
     }
 
-    return process.send;
+    return process.send.bind(process);
   })();
 
   public static readonly dataHandler = (data: Buffer) => {
@@ -80,7 +80,11 @@ export class Child {
   }
 
   private ipc(msg: IPCMessage) {
-    Child.ipc(msg);
+    Child.ipc(msg, (err: any) => {
+      if (err) {
+        process.stderr.write(`Child | IPC Error: ${err}\n`);
+      }
+    });
   }
 
 }
