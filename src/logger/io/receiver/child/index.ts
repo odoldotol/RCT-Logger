@@ -6,7 +6,15 @@ import { ReceiverData } from "../data";
  */
 export class Child {
 
-  private readonly dataHandler = (data: Buffer) => {
+  private static ipc = (() => {
+    if (process.send == undefined) {
+      throw new Error("Child process does not have IPC.");
+    }
+
+    return process.send;
+  })();
+
+  public static readonly dataHandler = (data: Buffer) => {
     process.stdout.write(data, (err) => {
       if (err) {
         process.stderr.write(`Child | ReceiverData process.stdout.write error: ${err}\n`);
@@ -14,9 +22,16 @@ export class Child {
     });
   };
 
-  private readonly errorHandler = (error: any) => {
+  public static readonly errorHandler = (error: any) => {
     process.stderr.write(`Child | ReceiverData Error: ${error}\n`);
   };
+
+  public static readonly logHandler = (log: string) => {
+    this.ipc({
+      signal: ChildSignal.Log,
+      data: log
+    });
+  }
 
   constructor(
     private readonly data: ReceiverData
@@ -25,11 +40,6 @@ export class Child {
   public activate() {
     this.onSignal();
     this.onMessage();
-
-    this.data.setHandler(
-      this.dataHandler,
-      this.errorHandler
-    );
   }
 
   private healthCheck() {}
@@ -45,8 +55,8 @@ export class Child {
   }
 
   private onMessage() {
-    process.on("message", (msg) => {
-      switch (msg) {
+    process.on("message", (signal) => {
+      switch (signal) {
         case ChildSignal.Open:
           this.data.open();
           break;

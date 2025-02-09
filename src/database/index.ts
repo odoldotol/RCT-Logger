@@ -8,6 +8,7 @@ import {
   getB6Timestamp,
   getKORMidnightMs,
   getKORMs,
+  Logger,
   unpackUTCMsB6Timestamp,
 } from '../common';
 import { DatabaseConfig } from '../config';
@@ -15,20 +16,21 @@ import { Readable } from 'stream';
 
 export class Byte19LogDatabase {
 
+  private readonly logger = new Logger(Byte19LogDatabase.name);
+
   private readonly writeBufferMap = new Map<SegmentNumber, WriteBuffer>();
 
   private batchTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly databaseConfig: DatabaseConfig,
-  ) {}
+  ) {
+    this.logger.log('Byte19LogDatabase is initialized.');
+  }
 
   public runBatch() {
     this.batchTimer = setTimeout(() => {
       this.batchTask()
-      .then(() => {
-        console.log('batchTask done');
-      })
       .catch((err) => {
         console.error(err);
       })
@@ -36,6 +38,8 @@ export class Byte19LogDatabase {
         this.runBatch();
       });
     }, this.databaseConfig.getBatchInterval());
+
+    this.logger.log('Batch Running.');
   }
 
   public async stopBatch(): Promise<void> {

@@ -223,5 +223,6 @@ export const enum ChildSignal {
   Open,
   Stop,
   Run,
-  Health
+  Health,
+  Log,
 }

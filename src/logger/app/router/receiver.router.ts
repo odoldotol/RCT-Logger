@@ -2,6 +2,7 @@ import { ReceiverInterface } from "../../..//logger/ioInterface";
 import { Observable } from "rxjs";
 import {
   B103ExtractedData,
+  Logger,
   Router
 } from "../../..//common";
 import { LogController } from "../log";
@@ -9,6 +10,8 @@ import { LogController } from "../log";
 export class ReceiverRouter
   implements Router
 {
+
+  private readonly logger = new Logger(ReceiverRouter.name);
 
   private readonly receiverDataStream: Observable<B103ExtractedData>;
 
@@ -27,6 +30,8 @@ export class ReceiverRouter
         this.logController.log(dataBuffer);
       }
     );
+
+    this.logger.log("ReceiverRouter is listening.");
   }
  
 }

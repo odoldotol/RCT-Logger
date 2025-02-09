@@ -2,17 +2,27 @@ import { Config } from "../../../../config/init";
 import { ReceiverData } from ".";
 import { ReceiverSerialClk } from "./clk";
 import { ReceiverSerial } from "./serial";
-import { GpioName } from "../../../../common";
+import { Child } from "../child";
 
 class ReceiverDataFactoryStatic {
 
   public create(): ReceiverData {
-    const receiverSerialClk = new ReceiverSerialClk(Config.gpioConfigService.getGpio(GpioName.RECEIVER_SERIAL_CLK));
-    const receiverSerial = new ReceiverSerial(Config.gpioConfigService.getGpio(GpioName.RECEIVER_SERIAL));
+    const receiverSerialClk = new ReceiverSerialClk(
+      Config.gpioConfigService,
+      Child.logHandler,
+    );
+    
+    const receiverSerial = new ReceiverSerial(
+      Config.gpioConfigService,
+      Child.logHandler,
+    );
 
     return new ReceiverData(
       receiverSerialClk,
-      receiverSerial
+      receiverSerial,
+      Child.dataHandler,
+      Child.logHandler,
+      Child.errorHandler,
     );
   }
 

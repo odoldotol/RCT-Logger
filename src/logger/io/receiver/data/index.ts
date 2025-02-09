@@ -7,21 +7,13 @@ export * from './factory';
 export class ReceiverData
   implements IO
 {
-  private data = (_data: Buffer) => {};
-  private error = (_error: any) => {};
-
   constructor(
     private readonly clk: ReceiverSerialClk,
     private readonly serial: ReceiverSerial,
+    private readonly data: (data: Buffer) => void,
+    private readonly log: (log: string) => void,
+    private readonly error: (error: any) => void,
   ) {}
-
-  public setHandler(
-    data: (data: Buffer) => void,
-    error: (error: any) => void,
-  ) {
-    this.data = data;
-    this.error = error;
-  }
 
   public open() {
     this.clk.watch((err, value) => {
@@ -40,6 +32,8 @@ export class ReceiverData
 
     this.clk.open();
     this.serial.open();
+
+    this.log('ReceiverData is opened.');
   }
 
   public close() {

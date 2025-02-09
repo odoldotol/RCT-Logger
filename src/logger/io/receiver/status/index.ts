@@ -1,20 +1,37 @@
-import { GpioConfig } from "../../../../config";
-import { GpioPigpio } from "../../gpio";
+import { GpioConfigService } from "../../../../config";
+import { GpioOnoff } from "../../gpio";
 import {
-  Level
+  GpioName,
+  Level,
+  Logger
 } from "../../../../common";
 import * as X from "rxjs";
 
 /**
- * HIGH 인 상태로 1s 이상 지나면 ON 상태로 봄.
- * 그 1s 사이에 Falling edge 를 한번이라도 감지하면 Off, 다시 1s 기다림.
- * 자세한 내용은 dev 파일 참고
+ * 상태를 보수적으로 판단한다. (Off 는 즉시 처리하고 On 은 일정 시간동안 기다리며 확실하면 처리한다.)  
  * 
- * Off 스타트.
+ * HIGH 인 상태로 1s 이상 지나면 ON 상태로 봄.  
+ * 그 1s 사이에 Falling edge 를 한번이라도 감지하면 Off, 다시 1s 기다림.  
+ * 자세한 내용은 dev 파일 참고  
+ * 
+ * Off 스타트.  
+ * 
+ * ### 프로세스를 나누면서 pigpio 를 사용할 수 없어졌음.
+ * 
+ * onoff 에서도 마찬가지로 무수한 연속적인 하강엣지 검출됨  
+ * 디바운스로 정확도는 잃지 않으면서 그 양을 어느정도 줄이면 좋음  
+ * 10ms 가 적당하다는 결론임.  
+ * 그 이상은 오프상태에서 하강엣지를 감지 못할 수 있음.
+ * 
+ * onWaitingTime 기존 1000 에서 머신주소 다를때 부정확함 보임  
+ * 1500 으로 늘림.
+ * 
  */
 export class ReceiverStatus
-  extends GpioPigpio
+  extends GpioOnoff
 {
+  private readonly logger = new Logger(ReceiverStatus.name);
+
   private isOpen = false;
 
   private status: Status | null = null;
@@ -22,16 +39,16 @@ export class ReceiverStatus
   private turnedOnHandler: Handler = X.noop;
   private turnedOffHandler: Handler = X.noop;
 
+  private onWaitingTime = 1500;
   private rejectWaitForOn: (() => void) | null = null;
   private onTimer: NodeJS.Timeout | null = null;
 
-  /**
-   * @param gpioConfig AR20
-   */
   constructor(
-    gpioConfig: GpioConfig,
+    gpioConfigService: GpioConfigService,
   ) {
-    super(gpioConfig);
+    super(gpioConfigService.getGpio(GpioName.RECEIVER_AR20));
+
+    this.logger.log(`AR20 GPIO${this.config.pin} is initialized.`);
   }
 
   /**
@@ -47,7 +64,12 @@ export class ReceiverStatus
 
     super.open();
 
-    this.on('alert', level => {
+    this.watch((err, level) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
       if (
         level == Level.High && // Rising edge
         // 일반적으로 Falling edge 이후에 왔다면 아래 조건은 의미없음.
@@ -63,15 +85,15 @@ export class ReceiverStatus
       }
     });
 
-    if (this.digitalRead() === Level.High) {
+    if (this.readSync() === Level.High) {
       this.waitForOn();
     } else {
       this.turnOff();
     }
 
-    this.enableAlert();
-
     this.isOpen = true;
+
+    this.logger.log(`ReceiverStatus is opened.`);
   }
 
   /**
@@ -85,8 +107,6 @@ export class ReceiverStatus
     }
 
     super.close();
-
-    this.disableAlert();
 
     this.turnOff();
 
@@ -114,7 +134,7 @@ export class ReceiverStatus
       this.rejectWaitForOn = reject;
       this.onTimer = setTimeout(() => {
         resolve();
-      }, 1000);
+      }, this.onWaitingTime);
     }).then(() => {
       this.turnedOnHandler(this.status == null ? HandlerArg.Init : HandlerArg.OnRun);
       this.status = Status.On;
