@@ -263,3 +263,4 @@ dist
 nohup.*
 *.dat
 *.bin
+*.xlsx

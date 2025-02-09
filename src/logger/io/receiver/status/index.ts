@@ -85,7 +85,7 @@ export class ReceiverStatus
       }
     });
 
-    if (this.readSync() === Level.High) {
+    if (this.readSync() == Level.High) {
       this.waitForOn();
     } else {
       this.turnOff();
