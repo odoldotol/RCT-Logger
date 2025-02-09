@@ -153,7 +153,9 @@ export class Receiver
             return;
           }
           if (stdout) {
-            this.logger.log(stdout);
+            stdout.split('\n').forEach((line) => {
+              line && this.logger.log(line);
+            });
           }
         });
       });
