@@ -22,7 +22,7 @@ export class ReceiverData
         return;
       }
     
-      if (value === Level.High) {
+      if (value == Level.High) {
         this.data(Buffer.allocUnsafe(1).fill(this.serial.digitalRead()));
       } else {
         // Must Not Reach Here
@@ -43,10 +43,14 @@ export class ReceiverData
 
   public run() {
     this.clk.run();
+
+    this.log('ReceiverData is running now.');
   }
 
   public stop() {
     this.clk.stop();
+
+    this.log('ReceiverData is stopped.');
   }
 
 }

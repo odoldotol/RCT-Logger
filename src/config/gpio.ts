@@ -27,7 +27,7 @@ export class GpioConfigService
       Number.isSafeInteger(AR20_DEBOUNCE) && AR20_DEBOUNCE != 0 &&
       Number.isSafeInteger(SERIAL_PIN) && SERIAL_PIN != 0 &&
       Number.isSafeInteger(SERIAL_CLK_PIN) && SERIAL_CLK_PIN != 0 &&
-      Number.isSafeInteger(SERIAL_CLK_DEBOUNCE) && SERIAL_CLK_DEBOUNCE != 0
+      Number.isSafeInteger(SERIAL_CLK_DEBOUNCE)
     ) {
 
       this.GpioMap.set(GpioName.RECEIVER_AR20, new GpioConfig(

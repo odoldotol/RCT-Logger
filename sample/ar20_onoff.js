@@ -13,8 +13,10 @@ ar20.watch((err, value) => {
 
   if (value === 1) {
     console.timeLog("edge", 1);
-  } else {
+  } else if (value === 0) {
     console.timeLog("edge", 0);
+  } else {
+    console.timeLog("edge", value);
   }
 });
 

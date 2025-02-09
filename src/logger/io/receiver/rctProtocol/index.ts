@@ -11,7 +11,9 @@ import {
 export class RCTProtocol
   extends Transform
 {
-  private buffer = Buffer.allocUnsafe(2048);
+  private bufferSize = 2048;
+
+  private buffer = Buffer.allocUnsafe(this.bufferSize);
   private bufferLength = 0;
 
   private readonly wordLength = 32;
@@ -33,12 +35,12 @@ export class RCTProtocol
       this.processSerial(level);
     });
 
-    cb()
+    cb();
   }
 
   override _flush(cb: TransformCallback) {
     this.reset();
-    cb()
+    cb();
   }
 
   public reset() {
@@ -105,6 +107,10 @@ export class RCTProtocol
 
   private pushToBuffer(level: Level) {
     this.buffer[this.bufferLength++] = level;
+
+    if (this.bufferLength > this.bufferSize) {
+      this.reset();
+    }
   }
 
 }

@@ -13,6 +13,7 @@ import {
 } from '../common';
 import { DatabaseConfig } from '../config';
 import { Readable } from 'stream';
+import * as Path from 'path';
 
 export class Byte19LogDatabase {
 
@@ -112,7 +113,7 @@ export class Byte19LogDatabase {
   private getFilePath(segmentNumber: SegmentNumber): string;
   private getFilePath(segmentArg: SegmentName | SegmentNumber): string {
     const segmentName = typeof segmentArg == 'string' ? segmentArg : this.getSegmentName(segmentArg);
-    return this.databaseConfig.getStoragePath() + segmentName + '.dat';
+    return Path.resolve(this.databaseConfig.getStoragePath(), segmentName, '.dat');
   }
 
   private getSegmentName(segmentNumber: SegmentNumber): SegmentName {

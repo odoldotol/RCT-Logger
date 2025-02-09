@@ -41,6 +41,8 @@ export class Receiver
   private waitingActivatedChildResolver: (() => void) | null = null;
 
   private readonly turnedOnHandler = (arg: HandlerArg) => {
+    this.logger.log("Status: On");
+
     if (arg == HandlerArg.OnRun) {
       this.pushData(this.getAr20TurnedOnB103Data());
     }
@@ -49,6 +51,8 @@ export class Receiver
   };
 
   private readonly turnedOffHandler = (arg: HandlerArg) => {
+    this.logger.log("Status: Off");
+
     if (arg == HandlerArg.OnRun) {
       this.pushData(this.getAr20TurnedOffB103Data());
     }
@@ -73,7 +77,11 @@ export class Receiver
 
     await this.waitingActivatedChild;
 
-    this.child.stdout?.pipe(this.rctProtocol)
+    if (this.child.stdout == null) {
+      throw new Error("Child stdout is null.");
+    }
+
+    this.child.stdout.pipe(this.rctProtocol)
     .on('data', (data: B192DataWord6) => {
       this.pushData(this.getB103ExtractedData(data));
     });
@@ -114,16 +122,15 @@ export class Receiver
 
   private closeChild() {
     this.ipc({ signal: ChildSignal.Close });
-    this.rctProtocol.reset();
   }
 
   private runChild() {
     this.ipc({ signal: ChildSignal.Run });
+    this.rctProtocol.reset();
   }
 
   private stopChild() {
     this.ipc({ signal: ChildSignal.Stop });
-    this.rctProtocol.reset();
   }
 
   private listenChild() {
@@ -194,6 +201,8 @@ export class Receiver
     this.child.on('exit', (code, signal) => {
       this.logger.log(`child process exited with code ${code} and signal ${signal}`);
       
+      // on/off 상태에 따라 run 해줘야함
+
       this.waitChildActivating();
       this.startChild();
     });

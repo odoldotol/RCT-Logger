@@ -2,16 +2,16 @@ const { fork, execSync, exec } = require("child_process");
 const { fromEvent } = require('rxjs');
 const X = require('rxjs/operators');
 
-// const PigGpio = require('pigpio').Gpio;
+const PigGpio = require('pigpio').Gpio;
 
 // const status = new PigGpio(22, {
-//   mode: PigGpio.INPUT,
-//   pullUpDown: PigGpio.PUD_DOWN,
-// }).on('alert', (level, tick) => {});
+//  mode: PigGpio.INPUT,
+//  pullUpDown: PigGpio.PUD_DOWN,
+//}).on('alert', (level, tick) => {});
 
-// status.glitchFilter(100);
+//status.glitchFilter(100);
 
-// status.enableAlert();
+//status.enableAlert();
 
 
 const child = fork("c.js",

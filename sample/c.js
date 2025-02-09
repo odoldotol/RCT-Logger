@@ -23,7 +23,7 @@ process.on("message", (msg) => {
 const PigGpio = require('pigpio').Gpio;
 const OoffGpio = require('onoff').Gpio;
 
-const onoffSclk = new OoffGpio(523, 'in');
+const onoffSclk = new OoffGpio(523, 'in', 'none', {});
 const serial = new PigGpio(10, {
   mode: PigGpio.INPUT,
   pullUpDown: PigGpio.PUD_DOWN,
