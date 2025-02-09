@@ -28,6 +28,9 @@ export abstract class GpioPigpio
   public open() {}
 
   public close() {
+    this.disableAlert();
+    this.disableInterrupt();
+
     this.removeAllListeners();
   }
 

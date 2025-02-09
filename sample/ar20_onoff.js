@@ -1,6 +1,8 @@
 const OoffGpio = require('onoff').Gpio;
 
-const ar20 = new OoffGpio(534, 'in', 'both', { debounceTimeout: 1 });
+const ar20 = new OoffGpio(534, 'in', 'none', { debounceTimeout: 10 });
+
+ar20.setEdge('both');
 
 console.time("edge");
 

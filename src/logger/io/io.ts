@@ -8,8 +8,8 @@ export class IO
     private readonly receiver: Receiver,
   ) {}
 
-  public open() {
-    this.receiver.open();
+  public async open(): Promise<void> {
+    await this.receiver.open();
   }
 
   public close() {

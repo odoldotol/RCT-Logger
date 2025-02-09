@@ -1,4 +1,4 @@
-import { ChildSignal } from "..";
+import { Serializable } from "node:child_process";
 import { ReceiverData } from "../data";
 
 /**
@@ -29,7 +29,7 @@ export class Child {
   public static readonly logHandler = (log: string) => {
     this.ipc({
       signal: ChildSignal.Log,
-      data: log
+      log
     });
   }
 
@@ -40,6 +40,8 @@ export class Child {
   public activate() {
     this.onSignal();
     this.onMessage();
+
+    this.ipc({ signal: ChildSignal.Activated });
   }
 
   private healthCheck() {}
@@ -55,8 +57,8 @@ export class Child {
   }
 
   private onMessage() {
-    process.on("message", (signal) => {
-      switch (signal) {
+    process.on("message", (msg: IPCMessage) => {
+      switch (msg.signal) {
         case ChildSignal.Open:
           this.data.open();
           break;
@@ -77,4 +79,24 @@ export class Child {
     });
   }
 
+  private ipc(msg: IPCMessage) {
+    Child.ipc(msg);
+  }
+
+}
+
+export interface IPCMessage {
+  signal: ChildSignal;
+  log?: string;
+  data?: Serializable;
+}
+
+export const enum ChildSignal {
+  Close,
+  Open,
+  Stop,
+  Run,
+  Health,
+  Log,
+  Activated,
 }

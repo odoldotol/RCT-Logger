@@ -91,6 +91,8 @@ export class ReceiverStatus
       this.turnOff();
     }
 
+    this.setEdge("both");
+
     this.isOpen = true;
 
     this.logger.log(`ReceiverStatus is opened.`);

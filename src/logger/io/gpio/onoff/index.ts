@@ -1,6 +1,5 @@
 import {
   Gpio as Onoff,
-  Edge,
 } from 'onoff';
 import { Direction } from '../../../../common';
 import { GpioConfig } from '../../../../config';
@@ -10,14 +9,13 @@ export abstract class GpioOnoff
 {
   constructor(
     protected readonly config: GpioConfig,
-    edge: Edge = 'none'
   ) {
     const debounceTimeout = config.debounceTimeout ? config.debounceTimeout / 1000 : undefined;
 
     super(
       config.pin + 512,
       config.direction === Direction.In ? 'in' : 'out',
-      edge,
+      'none',
       debounceTimeout ? {
         debounceTimeout,
         // activeLow: false,
@@ -32,6 +30,7 @@ export abstract class GpioOnoff
   public open() {}
 
   public close() {
+    this.setEdge('none');
     this.unwatchAll();
     this.unexport();
   }

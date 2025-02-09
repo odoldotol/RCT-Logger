@@ -4,6 +4,7 @@ import {
   B1Subject,
   extractWordData,
   IO,
+  Logger,
   packDateBuffer,
   SubjectValue,
   // Logger
@@ -22,6 +23,10 @@ import {
 } from "child_process";
 import { RCTProtocol } from "./rctProtocol";
 import P from "node:path";
+import {
+  ChildSignal,
+  IPCMessage
+} from "./child";
 
 /**
  * @Todo 차일드의 헬스체크/복구/로깅
@@ -29,9 +34,11 @@ import P from "node:path";
 export class Receiver
   implements IO
 {
-  // private readonly logger = new Logger(Receiver.name);
+  private readonly logger = new Logger(Receiver.name);
 
   private child: ChildProcess;
+  private waitingActivatedChild: Promise<void> | null = null;
+  private waitingActivatedChildResolver: (() => void) | null = null;
 
   private readonly turnedOnHandler = (arg: HandlerArg) => {
     if (arg == HandlerArg.OnRun) {
@@ -54,11 +61,18 @@ export class Receiver
     private readonly rctProtocol: RCTProtocol,
     private readonly receiverInterface: ReceiverInterface
   ) {
+    this.waitChildActivating();
     this.child = this.forkChild();
     this.listenChild();
   }
 
-  public open() {
+  public async open() {
+    if (this.waitingActivatedChild == null) {
+      throw new Error("Cannot wait for child activating.");
+    }
+
+    await this.waitingActivatedChild;
+
     this.child.stdout?.pipe(this.rctProtocol)
     .on('data', (data: B192DataWord6) => {
       this.pushData(this.getB103ExtractedData(data));
@@ -80,24 +94,31 @@ export class Receiver
     this.closeChild();
   }
 
+  private waitChildActivating(): void {
+    this.waitingActivatedChild = new Promise((resolve) => {
+      this.waitingActivatedChildResolver = resolve;
+    });
+  }
+
   private pushData(buffer: B103ExtractedData) {
     this.receiverInterface.pushData(buffer);
   }
 
   private openChild() {
-    this.child.send(ChildSignal.Open);
+    this.ipc({ signal: ChildSignal.Open });
   }
 
   private closeChild() {
-    this.child.send(ChildSignal.Close);
+    this.ipc({ signal: ChildSignal.Close });
+    this.rctProtocol.reset();
   }
 
   private runChild() {
-    this.child.send(ChildSignal.Run);
+    this.ipc({ signal: ChildSignal.Run });
   }
 
   private stopChild() {
-    this.child.send(ChildSignal.Stop);
+    this.ipc({ signal: ChildSignal.Stop });
     this.rctProtocol.reset();
   }
 
@@ -134,8 +155,22 @@ export class Receiver
       });
     });
 
-    this.child.on('message', (message) => {
-      console.log('child process message:', message);
+    this.child.on('message', (message: IPCMessage) => {
+      switch (message.signal) {
+        case ChildSignal.Activated:
+          if (this.waitingActivatedChildResolver == null) {
+            this.logger.warn("Child activated but no resolver.");
+          } else {
+            this.waitingActivatedChildResolver();
+          }
+          break;
+        case ChildSignal.Log:
+          message.log && this.logger.log(message.log);
+          break;
+        default:
+          console.error(`child process unknown signal: ${message}`);
+          break;
+      }
     });
 
     this.child.on('close', (code) => {
@@ -151,7 +186,9 @@ export class Receiver
     });
     
     this.child.on('exit', (code, signal) => {
-      console.log(`child process exited with code ${code} and signal ${signal}`);
+      this.logger.log(`child process exited with code ${code} and signal ${signal}`);
+      
+      this.waitChildActivating();
       this.startChild();
     });
 
@@ -216,13 +253,8 @@ export class Receiver
     return Buffer.allocUnsafe(1).fill(subjectValue) as B1Subject;
   }
 
-}
+  private ipc(msg: IPCMessage) {
+    this.child.send(msg);
+  }
 
-export const enum ChildSignal {
-  Close,
-  Open,
-  Stop,
-  Run,
-  Health,
-  Log,
 }
