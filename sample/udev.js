@@ -1,28 +1,147 @@
 const udev = require("udev");
+const { exec } = require('child_process');
 
 // console.dir(udev);
 
 // console.log(udev.list());
 
-const monitor = udev.monitor("usb");
+const usbMonitor = udev.monitor("usb");
+const blockMonitor = udev.monitor("block");
 
-monitor.on('add', (device) => {
-  console.log('added');
-  console.log(device);
+usbMonitor.on('add', (device) => {
+  logIf(device);
 });
 
-monitor.on('remove', (device) => {
-  console.log('removed');
-  console.log(device);
+usbMonitor.on('remove', (device) => {
+  logIf(device);
 });
 
-monitor.on('change', (device) => {
-  console.log('changed');
-  console.log(device);
+usbMonitor.on('change', (device) => {
+  logIf(device);
+});
+
+blockMonitor.on('add', (device) => {
+  if (filter(device)) {
+    const MOUNTPOINT = "/mnt/usb-" + device.DEVNAME.split("/").pop();
+    exec(`mkdir -p ${MOUNTPOINT}`, (err, stdout, stderr) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      if (stderr) {
+        console.error(stderr);
+        return;
+      }
+      console.log(stdout);
+
+      exec(`mount ${device.DEVNAME} ${MOUNTPOINT}`, (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+          exec(`rmdir ${MOUNTPOINT}`, (err, stdout, stderr) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            if (stderr) {
+              console.error(stderr);
+              return;
+            }
+            console.log(stdout);
+          });
+          return;
+        }
+        if (stderr) {
+          console.error(stderr);
+          exec(`rmdir ${MOUNTPOINT}`, (err, stdout, stderr) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            if (stderr) {
+              console.error(stderr);
+              return;
+            }
+            console.log(stdout);
+          });
+          return;
+        }
+        console.log(stdout);
+      });
+    });
+  }
+});
+
+blockMonitor.on('remove', (device) => {
+  if (filter(device)) {
+    const MOUNTPOINT = "/mnt/usb-" + device.DEVNAME.split("/").pop();
+    exec(`umount ${MOUNTPOINT}`, (err, stdout, stderr) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      if (stderr) {
+        console.error(stderr);
+        return;
+      }
+      console.log(stdout);
+
+      exec(`rmdir ${MOUNTPOINT}`, (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        if (stderr) {
+          console.error(stderr);
+          return;
+        }
+        console.log(stdout);
+      });
+    });
+  }
+});
+
+/*
+$ sudo umount /mnt/usb-sda1
+umount: /mnt/usb-sda1: not mounted.
+
+$ sudo umount /mnt/usb-sda1
+umount: /mnt/usb-sda1: no mount point specified.
+
+$ sudo rmdir /mnt/usb-sda1
+rmdir: failed to remove '/mnt/usb-sda1': No such file or directory
+
+$ sudo rmdir /mnt/usb-sda1
+rmdir: failed to remove '/mnt/usb-sda1': Device or resource busy
+*/
+
+blockMonitor.on('change', (device) => {
+  logIf(device);
 });
 
 // console.log(udev.list('tty'));
 
+const filter = (device) => {
+  if (
+    device.SUBSYSTEM == "block" &&
+    device.ID_BUS == "usb" &&
+    device.DEVTYPE == "partition"
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+
+const logIf = (device) => {
+  if (
+    device.SUBSYSTEM == "block" &&
+    device.ID_BUS == "usb" &&
+    device.DEVTYPE == "partition"
+  ) {
+    console.log(device);
+  }
+};
 
 
 
