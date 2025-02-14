@@ -1,11 +1,17 @@
 import { IOInterface } from "./ioInterface";
 import { ReceiverInterface } from "./receiver";
+import { UsbStorageInterface } from "./usb";
 
 class IOInterfaceFactoryStatic
 { 
   public create(): IOInterface {
     const receiver = new ReceiverInterface();
-    return new IOInterface(receiver);
+    const usbStorage = new UsbStorageInterface();
+
+    return new IOInterface(
+      receiver,
+      usbStorage,
+    );
   }
 
 }

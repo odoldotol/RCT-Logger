@@ -15,11 +15,16 @@ export class Logger
 
   public error(
     message: string,
+    error?: any,
   ): void {
     console.error(this.write(
       message,
       "ERROR",
     ));
+
+    if (error) {
+      console.error(error);
+    }
   }
 
   public warn(

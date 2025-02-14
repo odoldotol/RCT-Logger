@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
+  "os": [
+    "linux"
+  ],
   "engines": {
     "node": "22.13.1"
   },
@@ -32,7 +35,7 @@
     "url": "git+https://github.com/odoldotol/RCT-Logger.git"
   },
   "author": "lygorithm",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "bugs": {
     "url": "https://github.com/odoldotol/RCT-Logger/issues"
   },

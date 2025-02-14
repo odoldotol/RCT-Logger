@@ -12,6 +12,8 @@ export class LogController {
     this.logService.log(dataBuffer);
   }
 
-  public download() {}
+  // public download(writeDir: string, downloadDate: DownloadDate) {}
 
 }
+
+// type DownloadDate = string[];
