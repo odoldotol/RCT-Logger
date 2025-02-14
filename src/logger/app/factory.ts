@@ -1,8 +1,15 @@
 import { Byte19LogDatabase } from "../../database";
 import { IOInterface } from "../ioInterface/ioInterface";
 import { App } from "./app";
-import { ReceiverRouter, Router } from "./router";
-import { LogController, LogService } from "./log";
+import {
+  ReceiverRouter,
+  Router,
+  UsbStorageRouter
+} from "./router";
+import {
+  LogController,
+  LogService
+} from "./log";
 import { LogRepository } from "../database";
 
 class AppFactoryStatic {
@@ -20,12 +27,20 @@ class AppFactoryStatic {
 
     const logController = new LogController(logService);
 
-    const eceiverRouter = new ReceiverRouter(
+    const receiverRouter = new ReceiverRouter(
       ioInterface.receiver,
       logController
     );
 
-    const router = new Router(eceiverRouter);
+    const usbStorageRouter = new UsbStorageRouter(
+      ioInterface.usbStorage,
+      logController
+    );
+
+    const router = new Router(
+      receiverRouter,
+      usbStorageRouter,
+    );
 
     return new App(router);
   }
