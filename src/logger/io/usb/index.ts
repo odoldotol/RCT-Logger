@@ -2,12 +2,13 @@ import {
   IO,
   Logger
 } from "../../../common";
-import * as Udev from "udev";
 import {
   UsbStorageInterface,
   UsbStorageInterfaceEvent
 } from "../../ioInterface";
 import { UsbStorageContainer } from "./storage.container";
+
+const Udev = require("udev");
 
 /**
  * 하나의 USB 스토리지만 허용함.

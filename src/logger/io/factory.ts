@@ -5,6 +5,8 @@ import { RCTProtocol } from "./receiver/rctProtocol";
 import { Receiver } from "./receiver";
 
 import { Config } from "../../config/init";
+import { Usb } from "./usb";
+import { UsbStorageContainer } from "./usb/storage.container";
 
 class IOFactoryStatic {
 
@@ -18,8 +20,15 @@ class IOFactoryStatic {
       ioInterface.receiver
     );
 
+    const usbStorageContainer = new UsbStorageContainer();
+    const usb = new Usb(
+      usbStorageContainer,
+      ioInterface.usbStorage
+    );
+
     return new IO(
-      receiver
+      receiver,
+      usb
     );
   }
 
