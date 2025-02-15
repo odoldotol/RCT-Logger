@@ -10,88 +10,102 @@ Raspberry Pi OS Lite (64-bit), 438MB, Kernel version: 6.6, Debian version: 12 (b
 설치시 수개월 또는 수년간 접근 안할수도 있음
 
 # 전원 중단 대응 (베터리를 쓸 수 없는 환경)
-- 오버레이 파일 시스템으로 microSD 보호
-- DB 를 위한 공간은 파티션 나누고 마운트하여 디스크에 쓰기 가능하도록 함
-- DB 는 배치프로세싱으로 일정시간마다 데이터를 쓰고, 캐싱없이 즉시 디스크에 씀(fs.fsync)
-- 저널링(ext4)으로 DB의 안정성 추가 확보
+## 오버레이 파일 시스템
+- DB 파티션, 마운트, 저널링(ext4)
+- DB 데이터, 시스템로그, 서버로그 등을 디스크에 쓰는 하나 이상의 배치프로세싱 구성 (캐싱없이 즉시 쓰기)
+  - log2ram 알아보기
 
-- (추가)시스템 로그, 서버 로그 등을 일정시간마다 디스크에 쓰기. DB 배치와 겹치지 않도록 시간간격은 각각 소수를 이용
-- (추가)필요하면 외장 저전력 SSD 사용 고려
-- (추가)전원부 회로 보강 필요시 고려
 
 # 365 24
-- 재부팅 (정기적 & 리소스 모니터링하여 이상징후 발견시), AR20, download 등 서버에 확인기능필요. 1시간씩 지연기능 필요. 근무시간에는 절대 재부팅을 예약하지 않음.
-- Watchdog Timer
-- PM2 자동실행&리로드
-- 쿨링 팬/제어
-- 로그 로테이트
+## 리부트
+- 비 정기적 리부트
+  - 시스템 모니터링 & 리부트
+  - Watchdog Timer
+- 정기적 리부트
+  - AR20, download 등 확인해서 지연할 수 있어야함
+  - 근무시간에는 절대 리부트를 예약하지 않아야함
+
+## 앱 리로드
+- PM2 자동실행 & 리로드
+
+## 디스크
+로그 로테이트 - DB, 앱, 시스템로그
+
+## 발열?
+쿨링 팬/제어?
 
 # Network(Wifi, SSH)
-development only
+## development
 Wifi 자동 연결
 Wifi 통한 SSH 접속
-USB Cable 이용한 SSH 접속
+
+## production
 Wifi, 블루투스 등 불필요한 장치 끄기
+(복구전략) USB Cable 이용한 SSH 접속
+
 
 # GPIO
-## pigpio
+## Lib
+아래 두 라이브러리를 사용해서 GPIO 제어.
+### pigpio
 alert 은 수 마이크로초 단위로 뱐화를 감지하지만 이벤트 핸들러가 실행되는 타이밍의 오차는 1ms 까지 올라간다.
 interrupt 받는게 합리적이나, 문제가 있어보임.
 pigpio C 라이브러리는 /dev/gpiomem 같은 장치 파일에 접근하여 GPIO를 제어하는데,
 이 장치 파일은 한 번에 한 프로세스만 안전하게 접근할 수 있도록 되어 있어 멀티프로세싱 까다로움.
-시리얼을 읽는 프로세스에서만 사용.
+정확도가 중요한 부분, 시리얼을 읽는 프로세스에서만 사용.
 
-## onoff
+### onoff
 edge 는 수십 마이크로초 의 오차를 가지고 이벤트 핸들러를 실행할 수 있다.
+제너럴하게 사용.
 
-# Receiver Status 신호 문제
-- 디바운싱
-- 타이머
-
-# Serial Data
+## Serial Data
 GPIO 2개(SYNC_CLK, SERIAL_DATA)이용
-SYNC_CLK 의 상승엣지, 1200~1350bps
-
+SYNC_CLK 의 상승엣지(1200~1350bps) 에서 SERIAL_DATA 읽기
+### 정확도, 안정성
 - onoff < node-libgpiod < pigpio
-- child_process
-- stdio(Uint8Array) < 프로세스간 공유메모리
-- priority, scheduling policy
+- 이벤트 루프 분리, 프로세스 분리
+- 최소화 하고 scheduling policy, priority 조정
+- stdio(Uint8Array) 로 데이터 전달
 
-# Find SyncWord
-각 SyncWord 사이의 Word 들을 전달. 4~6 Words.
+## Receiver Status (AR20) 신호 문제
+디바운싱, 타이머 로 해결
 
-# Validation
-16 bits error limit
-
-## Address
-
-## Parity
-
-## Reverse
 
 # database
 - Log-Structured File System
+- append-only
+- segment
 - binary
-- 쓰기 복구 및 복원 전략
-- 읽기 검사 전략
-- 소켓
 
 # USB
-마운트(자동/수동), 권한, udev, 안전한 언마운트, 불안전한(강제) 언마운트
+앱에서 mount, umount 를 안전하게 제어
 
-# 엑셀
-1초마다 각 데이터들을 평균내서 출력.
+# 엑셀로 출력
+각 로그를 1초 단위로 압축/평균
 하루치를 하나의 파일로, 3만여개의 열 예상.
 스트리밍쓰기
 
-# 다운로드
-USB
-스트림
+# LED
 
-# 상태체크 LED
-라즈베리파이 부팅됨
-서버 실행중
-데이터 수신중
-로깅중
-USB연결
-다운로드완료
+# 패키징
+
+# 출고 Test 구축
+
+
+
+
+
+
+
+
+
+May ------------------------------------------
+
+# DB 안정성 + 복구전략
+- 쓰기 복구 및 복원 전략
+- 읽기 검사 전략
+- 프로세스 나누고 소켓으로 통신
+
+# 로거에서 가능한 검증 3 가지 / 16 bits error limit / Address Parity Reverse
+
+# 전원부 회로
