@@ -8,6 +8,7 @@ import {
 } from "./router";
 import {
   LogController,
+  LogFactory,
   LogService
 } from "./log";
 import { LogRepository } from "../database";
@@ -21,9 +22,13 @@ class AppFactoryStatic {
     ioInterface: IOInterface,
     database: Byte19LogDatabase
   ) {
-    const ogRepository = new LogRepository(database);
+    const logRepository = new LogRepository(database);
+    const logFactory = new LogFactory();
 
-    const logService = new LogService(ogRepository);
+    const logService = new LogService(
+      logFactory,
+      logRepository,
+    );
 
     const logController = new LogController(logService);
 

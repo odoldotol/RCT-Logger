@@ -24,6 +24,7 @@ export interface B192DataWord6
   extends Buffer
 {
   byteLength: 192;
+  [idx: number]: 0 | 1;
 }
 
 /**
@@ -34,6 +35,7 @@ export interface B96ExtractedDataWord6
   extends Buffer
 {
   byteLength: 96; // 192/2
+  [idx: number]: 0 | 1;
 }
 
 /**

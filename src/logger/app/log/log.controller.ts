@@ -14,6 +14,10 @@ export class LogController {
 
   // public download(writeDir: string, downloadDate: DownloadDate) {}
 
+  public async fakeDownload(writeDir: string) {
+    return this.logService.fakeDownload(writeDir);
+  }
+
 }
 
 // type DownloadDate = string[];

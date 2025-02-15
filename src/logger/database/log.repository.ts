@@ -57,11 +57,15 @@ export class LogRepository {
     return subject.asObservable();
   }
 
+  /**
+   * 
+   * @param num default 5
+   */
   public getLastSegmentName(num = 5): Promise<string[]> {
     return this.getSegmentLs().then(segmentNameArr => segmentNameArr.slice(-num));
   }
 
-  private getSegmentLs(): Promise<string[]> {
+  public getSegmentLs(): Promise<string[]> {
     return this.database.lsSegment();
   }
 

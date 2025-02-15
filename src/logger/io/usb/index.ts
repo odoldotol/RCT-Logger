@@ -55,7 +55,7 @@ export class Usb
             throw new Error(`Add Error: MountedDir is null: ${usbStorage.deviceName}`);
           }
 
-          this.logger.log(`Mounted ${usbStorage.deviceName} ${mountedDir}`); // LED G Blink
+          this.logger.log(`Udev[Add]: Added and Mounted ${usbStorage.deviceName} ${mountedDir}`); // LED G Blink
 
           this.usbStorageInterface.emit(
             UsbStorageInterfaceEvent.Mounted,
@@ -75,7 +75,7 @@ export class Usb
         const usbStorage = this.usbStorageContainer.find(event);
 
         if (usbStorage == null) {
-          this.logger.warn(`Can Not Remove Device. Not Found: ${event.DEVNAME}`);
+          this.logger.warn(`Can Not Remove Device. No UsbStorage in Container: ${event.DEVNAME}`);
           return;
         }
 
@@ -83,7 +83,7 @@ export class Usb
         if (mountedDir != null) {
           this.usbStorageContainer.umount(usbStorage)
           .then(() => {
-            this.logger.warn(`Umounted on Remove: ${usbStorage.deviceName}`);
+            this.logger.warn(`Udev[Remove] Umounted ${usbStorage.deviceName}`);
             this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
           })
           .catch(e => {
@@ -93,7 +93,7 @@ export class Usb
 
         this.usbStorageContainer.remove(event);
 
-        this.logger.log(`Removed: ${usbStorage.deviceName}`);
+        this.logger.log(`Udev[Remove] Removed ${usbStorage.deviceName}`);
         
         // 전부 제거된경우엔 LED G OFF Y OFF
       }
@@ -112,7 +112,7 @@ export class Usb
           this.logger.error(`Complete, But Failed to Umount: ${deviceName}`, e); // LED G OFF Y ON
         });
       } else {
-        this.logger.error(`Complete, But Not Found: ${deviceName}`); // LED G OFF Y ON
+        this.logger.error(`Complete, ButNo UsbStorage in Container: ${deviceName}`); // LED G OFF Y ON
       }
     });
 
@@ -127,7 +127,7 @@ export class Usb
           this.logger.error(`Error, But Failed to Umount: ${deviceName}`, e); // LED G OFF Y ON
         });
       } else {
-        this.logger.warn(`Error, But Not Found: ${deviceName}`); // LED G OFF Y ON
+        this.logger.warn(`Error, No UsbStorage in Container: ${deviceName}`); // LED G OFF Y ON
 
         // 전부 제거된경우엔 LED G OFF Y OFF
       }
