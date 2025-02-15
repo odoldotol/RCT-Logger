@@ -26,6 +26,8 @@ export class Byte19LogDatabase {
   constructor(
     private readonly databaseConfig: DatabaseConfig,
   ) {
+    this.lsSegment(); // getStoragePath 체크, 없으면 에러로 종료.
+
     this.logger.log('Byte19LogDatabase is initialized.');
   }
 
@@ -78,7 +80,10 @@ export class Byte19LogDatabase {
   }
 
   public lsSegment(): Promise<string[]> {
-    return readdir(this.databaseConfig.getStoragePath());
+    return readdir(this.databaseConfig.getStoragePath())
+    .then((files) => {
+      return files.map((file) => file.split('.')[0]!);
+    });
   }
 
   /**
