@@ -20,7 +20,7 @@ export class LogService {
   public async fakeDownload(writeDir: string) {
     // 쓰기 스트림 만들고
     const now = new Date();
-    const fileName = `download_${now.toLocaleDateString("en-GB", { timeZone: "Asia/Seoul" }).split("/").reverse().join("-")}_${now.toLocaleTimeString("en-GB", { timeZone: "Asia/Seoul" }).replace(":", "-")}.xlsx`;
+    const fileName = `download_${now.toLocaleDateString("en-GB", { timeZone: "Asia/Seoul" }).split("/").reverse().join("-")}_${now.toLocaleTimeString("en-GB", { timeZone: "Asia/Seoul" }).replace(/:/g, "-")}.xlsx`;
     const writePath = Path.resolve(writeDir, fileName);
     const writeStream = createWriteStream(writePath);
     // 엑셀 워크북 쓰기 스트림 만들고
