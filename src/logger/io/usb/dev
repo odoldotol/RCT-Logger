@@ -25,7 +25,7 @@ Udev 가 DEVNAME, Kernel Name 등을 중복없게 이벤트로 보내줌.
 때문에 하나의 USB 스토리지 연결만 처리함. 2 이상의 연결부터는 무시함.
 
 # 파일명
-download_YYYY-MM-DD_HH:MM:SS.xlsx
+download_YYYY-MM-DD_HH-MM-SS.xlsx
 
 # download.txt
 다운로드 할 날짜를 서버에 알려줄 수 있는 파일.
@@ -39,7 +39,8 @@ download_YYYY-MM-DD_HH:MM:SS.xlsx
 중복된 날짜는 한번만 다운로드함.
 파일이 존재하지 않거나 아무값이 없거나 알맞지 않는 형식일시 기본값: 10
 
-# server.log
-서버의 모든 로그들을 다운로드한 폴더
+# server_log
+서버(앱, 시스템 등)의 로그들을 다운로드한 폴더
 
 # 만약 인식도 못하고 다운로드도 안하고 먹통이면 로거를 재부팅해야함.
+그럴일은 없음.
