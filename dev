@@ -2,7 +2,7 @@
 Raspberry Pi 4 Model B, 4GB RAM, BCM2711(4Core&Thread)
 SanDisk Extreme | microSDXC UHS-I Card, 64GB
 Raspberry Pi OS Lite (64-bit), 438MB, Kernel version: 6.6, Debian version: 12 (bookworm)
-+ RTC 추가해야함
++ RTC 추가해야함 (전원이 있으면 베터리를 사용하지 않는?)
 
 # 현장
 네트워크 없음, 인터넷 불가능
@@ -41,7 +41,7 @@ Wifi 통한 SSH 접속
 
 ## production
 Wifi, 블루투스 등 불필요한 장치 끄기
-(복구전략) USB Cable 이용한 SSH 접속
+(복구전략) Ethernet 이용한 SSH 접속
 
 
 # GPIO

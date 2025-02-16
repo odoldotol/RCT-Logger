@@ -12,10 +12,10 @@ Cooling Fan
 
 partition
 overlay FS
+DB, Log
 monit
 reboot
 watchdog
 
-App
-
-Log
+App Reload
+Log Rotate
