@@ -3,7 +3,7 @@ import { DEVNAME } from "../../io/usb";
 import { MountedDir } from "../../io/usb/storage";
 
 /**
- * 
+ * @todo 더 안전하게
  */
 export class UsbStorageInterface
   extends EventEmitter<UsbStorageInterfaceEventMap>
