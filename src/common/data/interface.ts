@@ -1,3 +1,5 @@
+import { Level } from "../const";
+
 /**
  * 6 bytes 에 압축 기록된 시간 정보.
  */
@@ -24,7 +26,7 @@ export interface B192DataWord6
   extends Buffer
 {
   byteLength: 192;
-  [idx: number]: 0 | 1;
+  [idx: number]: Level;
 }
 
 /**
@@ -35,7 +37,7 @@ export interface B96ExtractedDataWord6
   extends Buffer
 {
   byteLength: 96; // 192/2
-  [idx: number]: 0 | 1;
+  [idx: number]: Level;
 }
 
 /**

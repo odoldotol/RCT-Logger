@@ -1,6 +1,8 @@
 import { GpioOnoff } from "../../gpio";
-import { GpioConfigService } from "../../../../config";
-import { GpioName } from "../../../../common";
+import {
+  GpioConfigService,
+  ReceiverGpioName
+} from "../../../../config";
 
 
 export class ReceiverSerialClk
@@ -10,7 +12,7 @@ export class ReceiverSerialClk
     gpioConfigService: GpioConfigService,
     private readonly log: (log: string) => void,
   ) {
-    super(gpioConfigService.getGpio(GpioName.RECEIVER_SERIAL_CLK));
+    super(gpioConfigService.getReceiverGpioConfig(ReceiverGpioName.SERIAL_CLK));
 
     this.log(`SerialClk GPIO${this.config.pin} is initialized.`);
   }

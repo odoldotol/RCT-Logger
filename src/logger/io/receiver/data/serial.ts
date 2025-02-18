@@ -1,5 +1,7 @@
-import { GpioName } from "../../../../common";
-import { GpioConfigService } from "../../../../config";
+import {
+  GpioConfigService,
+  ReceiverGpioName
+} from "../../../../config";
 import { GpioPigpio } from "../../../../logger/io/gpio";
 
 export class ReceiverSerial
@@ -9,7 +11,7 @@ export class ReceiverSerial
     gpioConfigService: GpioConfigService,
     private readonly log: (log: string) => void,
   ) {
-    super(gpioConfigService.getGpio(GpioName.RECEIVER_SERIAL));
+    super(gpioConfigService.getReceiverGpioConfig(ReceiverGpioName.SERIAL));
 
     this.log(`Serial GPIO${this.config.pin} is initialized.`);
   }

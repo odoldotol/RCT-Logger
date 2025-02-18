@@ -13,9 +13,3 @@ export const enum PullUpDown {
   Down,
   None,
 }
-
-export const enum GpioName {
-  RECEIVER_AR20,
-  RECEIVER_SERIAL,
-  RECEIVER_SERIAL_CLK,
-}

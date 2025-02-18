@@ -1,60 +1,111 @@
 import {
   Direction,
-  GpioName,
   Level,
   PullUpDown
 } from "../common";
 import { Config } from "./config";
-import { EnvKey } from "./const";
+import {
+  EnvKey,
+  LedGpioName,
+  ReceiverGpioName
+} from "./const";
 
 export class GpioConfigService
 {
-  private readonly GpioMap = new Map<GpioName, GpioConfig>();
+  private readonly receiverGpioMap = new Map<ReceiverGpioName, GpioConfig>();
+  private readonly ledGpioMap = new Map<LedGpioName, GpioConfig>();
+
+  private readonly pinSet = new Set<number>();
 
   constructor(
     private readonly config: Config
   ) {
-    const AR20_PIN = Number(this.config.get(EnvKey.AR20_PIN));
-    const AR20_DEBOUNCE = Number(this.config.get(EnvKey.AR20_DEBOUNCE));
+    const AR20_PIN = this.getPin(EnvKey.AR20_PIN);
+    const AR20_DEBOUNCE = this.getInt(EnvKey.AR20_DEBOUNCE);
 
-    const SERIAL_PIN = Number(this.config.get(EnvKey.SERIAL_PIN));
+    const SERIAL_PIN = this.getPin(EnvKey.SERIAL_PIN);
 
-    const SERIAL_CLK_PIN = Number(this.config.get(EnvKey.SERIAL_CLK_PIN));
-    const SERIAL_CLK_DEBOUNCE = Number(this.config.get(EnvKey.SERIAL_CLK_DEBOUNCE));
+    const SERIAL_CLK_PIN = this.getPin(EnvKey.SERIAL_CLK_PIN);
+    const SERIAL_CLK_DEBOUNCE = this.getInt(EnvKey.SERIAL_CLK_DEBOUNCE);
 
-    if (
-      Number.isSafeInteger(AR20_PIN) && AR20_PIN != 0 &&
-      Number.isSafeInteger(AR20_DEBOUNCE) && AR20_DEBOUNCE != 0 &&
-      Number.isSafeInteger(SERIAL_PIN) && SERIAL_PIN != 0 &&
-      Number.isSafeInteger(SERIAL_CLK_PIN) && SERIAL_CLK_PIN != 0 &&
-      Number.isSafeInteger(SERIAL_CLK_DEBOUNCE)
-    ) {
+    const LED_A_PIN = this.getPin(EnvKey.LED_A_PIN);
 
-      this.GpioMap.set(GpioName.RECEIVER_AR20, new GpioConfig(
-        AR20_PIN,
-        Direction.In,
-        PullUpDown.Down,
-      ).setDebounceTimeout(AR20_DEBOUNCE));
+    const LED_B_PIN = this.getPin(EnvKey.LED_B_PIN);
 
-      this.GpioMap.set(GpioName.RECEIVER_SERIAL, new GpioConfig(
-        SERIAL_PIN,
-        Direction.In,
-        PullUpDown.Down,
-      ));
+    const LED_C_PIN = this.getPin(EnvKey.LED_C_PIN);
 
-      this.GpioMap.set(GpioName.RECEIVER_SERIAL_CLK, new GpioConfig(
-        SERIAL_CLK_PIN,
-        Direction.In,
-        PullUpDown.Down,
-      ).setDebounceTimeout(SERIAL_CLK_DEBOUNCE));
+    const LED_D_PIN = this.getPin(EnvKey.LED_D_PIN);
 
-    } else {
-      throw new Error("enviroment variables are not available. check env file.");
-    }
+
+    this.receiverGpioMap
+    .set(ReceiverGpioName.AR20, new GpioConfig(
+      AR20_PIN,
+      Direction.In,
+      PullUpDown.Down,
+    ).setDebounceTimeout(AR20_DEBOUNCE))
+    .set(ReceiverGpioName.SERIAL, new GpioConfig(
+      SERIAL_PIN,
+      Direction.In,
+      PullUpDown.Down,
+    ))
+    .set(ReceiverGpioName.SERIAL_CLK, new GpioConfig(
+      SERIAL_CLK_PIN,
+      Direction.In,
+      PullUpDown.Down,
+    ).setDebounceTimeout(SERIAL_CLK_DEBOUNCE))
+
+    this.ledGpioMap
+    .set(LedGpioName.DownloadGreen, this.createLedGpioConfig(LED_A_PIN))
+    .set(LedGpioName.DownloadYellow, this.createLedGpioConfig(LED_B_PIN))
+    .set(LedGpioName.DatabaseAppend, this.createLedGpioConfig(LED_C_PIN))
+    .set(LedGpioName.Test, this.createLedGpioConfig(LED_D_PIN));
+
   }
 
-  public getGpio(name: GpioName): GpioConfig {
-    return this.GpioMap.get(name)!;
+  public getReceiverGpioConfig(name: ReceiverGpioName): GpioConfig {
+    return this.receiverGpioMap.get(name)!;
+  }
+
+  public getLedGpioConfigIterator(): MapIterator<[LedGpioName, GpioConfig]> {
+    return this.ledGpioMap.entries();
+  }
+
+  public getLedGpioKeys(): LedGpioName[] {
+    return Array.from(this.ledGpioMap.keys());
+  }
+
+  /**
+   * @returns valid pin number
+   */
+  private getPin(pinEnvKey: EnvKey): number {
+    const PIN = this.getInt(pinEnvKey);
+
+    if (this.pinSet.has(PIN)) {
+      // 중복된 핀
+      throw new Error(`enviroment variable ${pinEnvKey} is duplicated.`);
+    }
+
+    this.pinSet.add(PIN);
+
+    return PIN;
+  }
+
+  private getInt(envKey: EnvKey): number {
+    const int = parseInt(this.config.get(envKey) ?? "");
+    
+    if (Number.isSafeInteger(int) == false) {
+      throw new Error(`enviroment variable ${envKey} is not available.`);
+    }
+
+    return int;
+  }
+
+  private createLedGpioConfig(pin: number): GpioConfig {
+    return new GpioConfig(
+      pin,
+      Direction.Out,
+      PullUpDown.Down
+    );
   }
 
 }

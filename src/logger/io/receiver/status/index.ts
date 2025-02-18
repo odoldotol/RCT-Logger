@@ -1,7 +1,9 @@
-import { GpioConfigService } from "../../../../config";
+import {
+  GpioConfigService,
+  ReceiverGpioName
+} from "../../../../config";
 import { GpioOnoff } from "../../gpio";
 import {
-  GpioName,
   Level,
   Logger
 } from "../../../../common";
@@ -46,7 +48,7 @@ export class ReceiverStatus
   constructor(
     gpioConfigService: GpioConfigService,
   ) {
-    super(gpioConfigService.getGpio(GpioName.RECEIVER_AR20));
+    super(gpioConfigService.getReceiverGpioConfig(ReceiverGpioName.AR20));
 
     this.logger.log(`AR20 GPIO${this.config.pin} is initialized.`);
   }

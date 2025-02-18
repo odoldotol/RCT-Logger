@@ -3,10 +3,15 @@ import { IO } from "./io";
 import { ReceiverStatus } from "./receiver/status";
 import { RCTProtocol } from "./receiver/rctProtocol";
 import { Receiver } from "./receiver";
-
 import { Config } from "../../config/init";
 import { Usb } from "./usb";
 import { UsbStorageContainer } from "./usb/storage.container";
+import {
+  Led,
+  LedContainer
+} from "./led";
+import { LedGpioName } from "../../config";
+
 
 class IOFactoryStatic {
 
@@ -26,9 +31,20 @@ class IOFactoryStatic {
       ioInterface.usbStorage
     );
 
+    const ledMap = new Map<LedGpioName, Led>();
+    for (const [ name, config ] of Config.gpioConfigService.getLedGpioConfigIterator()) {
+      ledMap.set(name, new Led(
+        config,
+        ioInterface.ledContainer.get(name)
+      ));
+    }
+
+    const ledContainer = new LedContainer(ledMap);
+
     return new IO(
       receiver,
-      usb
+      usb,
+      ledContainer,
     );
   }
 

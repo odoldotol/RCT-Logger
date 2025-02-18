@@ -1,28 +1,31 @@
-import { Subject } from "rxjs";
+import { 
+  Observable,
+  Subject
+} from "rxjs";
+import { Level } from "../../../common";
 
-export class LEDInterface
-  extends Subject<LEDData>
-{
-  constructor() {
-    super();
+/**
+ * extends LevelOut
+ */
+export class LedInterface {
+
+  private readonly levelStream = new Subject<Level>();
+
+  public high(): void {
+    this.levelStream.next(Level.High);
   }
 
-  public on(): void {
-    this.next(LEDData.On);
+  public low(): void {
+    this.levelStream.next(Level.Low);
   }
 
-  public off(): void {
-    this.next(LEDData.Off);
+  public blinkOnce(ms = 100): void {
+    this.high();
+    setTimeout(() => this.low(), ms);
   }
 
-  public blinkOnce(ms = 250): void {
-    this.on();
-    setTimeout(() => this.off(), ms);
+  public getLevelStream(): Observable<Level> {
+    return this.levelStream.asObservable();
   }
 
-}
-
-export const enum LEDData {
-  On = 1,
-  Off = 0,
 }
