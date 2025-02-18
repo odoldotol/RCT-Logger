@@ -3,6 +3,7 @@ import {
   Logger
 } from "../../../common";
 import {
+  LedInterface,
   UsbStorageInterface,
   UsbStorageInterfaceEvent
 } from "../../ioInterface";
@@ -28,7 +29,9 @@ export class Usb
   
   constructor(
     private readonly usbStorageContainer: UsbStorageContainer,
-    private readonly usbStorageInterface: UsbStorageInterface
+    private readonly usbStorageInterface: UsbStorageInterface,
+    private readonly downloadGreenLedInterface: LedInterface,
+    private readonly downloadYellowLedInterface: LedInterface,
   ) {}
 
   public open() {
@@ -55,7 +58,8 @@ export class Usb
             throw new Error(`Add Error: MountedDir is null: ${usbStorage.deviceName}`);
           }
 
-          this.logger.log(`Udev[Add]: Added and Mounted ${usbStorage.deviceName} ${mountedDir}`); // LED G Blink
+          this.logger.log(`Udev[Add]: Added and Mounted ${usbStorage.deviceName} ${mountedDir}`);
+          this.downloadGreenLedInterface.blink(500);
 
           this.usbStorageInterface.emit(
             UsbStorageInterfaceEvent.Mounted,
@@ -64,7 +68,9 @@ export class Usb
           );
         })
         .catch(e => {
-          this.logger.error(`Failed to Add`, e); // LED G OFF Y ON
+          this.logger.error(`Failed to Add`, e);
+          this.downloadGreenLedInterface.off();
+          this.downloadYellowLedInterface.on();
         });
       }
     });
@@ -87,15 +93,18 @@ export class Usb
             this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
           })
           .catch(e => {
-            this.logger.error(`Failed to Umount on Remove`, e); // LED G Y
+            this.logger.error(`Failed to Umount on Remove`, e);
           });
         }
 
         this.usbStorageContainer.remove(event);
 
         this.logger.log(`Udev[Remove] Removed ${usbStorage.deviceName}`);
-        
-        // 전부 제거된경우엔 LED G OFF Y OFF
+
+        if (this.usbStorageContainer.size == 0) {
+          this.downloadGreenLedInterface.off();
+          this.downloadYellowLedInterface.off();
+        }
       }
     });
   }
@@ -105,14 +114,20 @@ export class Usb
       if (this.usbStorageContainer.has(deviceName)) {
         this.usbStorageContainer.umount(deviceName)
         .then((usbStorage) => {
-          this.logger.log(`Complete and Umounted: ${usbStorage.deviceName}`); // LED G ON Y OFF
+          this.logger.log(`Complete and Umounted: ${usbStorage.deviceName}`);
           this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
+          this.downloadGreenLedInterface.on();
+          this.downloadYellowLedInterface.off();
         })
         .catch(e => {
-          this.logger.error(`Complete, But Failed to Umount: ${deviceName}`, e); // LED G OFF Y ON
+          this.logger.error(`Complete, But Failed to Umount: ${deviceName}`, e);
+          this.downloadGreenLedInterface.on();
+          this.downloadYellowLedInterface.on();
         });
       } else {
-        this.logger.error(`Complete, ButNo UsbStorage in Container: ${deviceName}`); // LED G OFF Y ON
+        this.logger.error(`Complete, ButNo UsbStorage in Container: ${deviceName}`);
+        this.downloadGreenLedInterface.on();
+        this.downloadYellowLedInterface.on();
       }
     });
 
@@ -120,16 +135,24 @@ export class Usb
       if (this.usbStorageContainer.has(deviceName)) {
         this.usbStorageContainer.umount(deviceName)
         .then((usbStorage) => {
-          this.logger.log(`Error and Umounted: ${usbStorage.deviceName}`); // LED G OFF Y ON
+          this.logger.log(`Error and Umounted: ${usbStorage.deviceName}`);
           this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
         })
         .catch(e => {
-          this.logger.error(`Error, But Failed to Umount: ${deviceName}`, e); // LED G OFF Y ON
+          this.logger.error(`Error, But Failed to Umount: ${deviceName}`, e);
+        })
+        .finally(() => {
+          this.downloadGreenLedInterface.off();
+          this.downloadYellowLedInterface.on();
         });
       } else {
-        this.logger.warn(`Error, No UsbStorage in Container: ${deviceName}`); // LED G OFF Y ON
-
-        // 전부 제거된경우엔 LED G OFF Y OFF
+        this.logger.warn(`Error, No UsbStorage in Container: ${deviceName}`);
+        this.downloadGreenLedInterface.off();
+        if (this.usbStorageContainer.size == 0) {
+          this.downloadYellowLedInterface.off();
+        } else {
+          this.downloadYellowLedInterface.on();
+        }
       }
     });
   }

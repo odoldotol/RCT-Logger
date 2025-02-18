@@ -8,6 +8,9 @@ import { LedInterface } from "../../ioInterface/led";
 import { GpioOnoff } from "../gpio";
 import { Subscription } from "rxjs";
 
+/**
+ * extends LevelOut
+ */
 export class Led
   extends GpioOnoff
   implements IO
@@ -53,6 +56,12 @@ export class Led
     if (this.subscription) {
       this.subscription.unsubscribe();
       this.subscription = null;
+    }
+
+    try {
+      this.writeSync(Level.Low);
+    } catch (err) {
+      this.logger.error("Failed to write Low on close", err);
     }
 
     super.close();

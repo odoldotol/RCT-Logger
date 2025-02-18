@@ -3,12 +3,16 @@ import { IOFactory } from "./io";
 import { AppFactory } from "./app";
 import { Byte19LogDatabase } from "../database";
 import { Config } from "../config/init";
+import { LedGpioName } from "../config";
 
 async function bootstrap() {
 
-  const database = new Byte19LogDatabase(Config.databaseConfig);
-
   const ioInterface = IOInterfaceFactory.create();
+  
+  const database = new Byte19LogDatabase(
+    Config.databaseConfig,
+    ioInterface.ledContainer.get(LedGpioName.DatabaseAppend)
+  );
 
   const io = IOFactory.create(ioInterface);
   const app = AppFactory.create(

@@ -14,6 +14,7 @@ import {
 import { DatabaseConfig } from '../config';
 import { Readable } from 'stream';
 import * as Path from 'path';
+import { LedInterface } from '../logger/ioInterface';
 
 export class Byte19LogDatabase {
 
@@ -25,6 +26,7 @@ export class Byte19LogDatabase {
 
   constructor(
     private readonly databaseConfig: DatabaseConfig,
+    private readonly appendLedInterface: LedInterface,
   ) {
     this.lsSegment(); // getStoragePath 체크, 없으면 에러로 종료.
 
@@ -62,6 +64,8 @@ export class Byte19LogDatabase {
     } else {
       this.writeBufferMap.set(segmentNumber, [ dataBuffer ]);
     }
+
+    this.appendLedInterface.blinkOnce();
   }
 
   /**
