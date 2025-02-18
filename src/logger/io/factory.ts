@@ -22,7 +22,8 @@ class IOFactoryStatic {
     const receiver = new Receiver(
       status,
       rctProtocol,
-      ioInterface.receiver
+      ioInterface.receiver,
+      ioInterface.ledContainer.get(LedGpioName.Test)
     );
 
     const usbStorageContainer = new UsbStorageContainer();

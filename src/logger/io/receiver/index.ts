@@ -14,6 +14,7 @@ import {
   ReceiverStatus
 } from "./status";
 import {
+  LedInterface,
   ReceiverInterface
 } from "../../../logger/ioInterface";
 import {
@@ -63,7 +64,8 @@ export class Receiver
   constructor(
     private readonly status: ReceiverStatus,
     private readonly rctProtocol: RCTProtocol,
-    private readonly receiverInterface: ReceiverInterface
+    private readonly receiverInterface: ReceiverInterface,
+    private readonly testLedInterface: LedInterface,
   ) {
     this.waitChildActivating();
     this.child = this.forkChild();
@@ -83,6 +85,7 @@ export class Receiver
 
     this.child.stdout.pipe(this.rctProtocol)
     .on('data', (data: B192DataWord6) => {
+      this.testLedInterface.blinkOnce();
       this.pushData(this.getB103ExtractedData(data));
     });
 
