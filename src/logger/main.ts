@@ -30,6 +30,9 @@ async function bootstrap() {
   })
   .on('SIGINT', () => {
     terminate();
+  })
+  .on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   });
 
   const terminate = () => {

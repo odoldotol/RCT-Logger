@@ -38,7 +38,8 @@ export class LedInterface {
   public blink(ms = 200): void {
     this.reset();
 
-    let flag = false;
+    let flag = true;
+    this.high();
     this.timer = setInterval(() => {
       flag = !flag;
       flag ? this.high() : this.low();
