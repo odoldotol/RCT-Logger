@@ -37,14 +37,12 @@ export class Byte19LogDatabase {
     this.batchTimer = setTimeout(() => {
       this.batchTask()
       .catch((err) => {
-        console.error(err);
+        this.logger.error('batchTask error', err);
       })
       .finally(() => {
         this.runBatch();
       });
     }, this.databaseConfig.getBatchInterval());
-
-    this.logger.log('Batch Running...');
   }
 
   public async stopBatch(): Promise<void> {
@@ -116,7 +114,7 @@ export class Byte19LogDatabase {
     });
 
     return Promise.all(tasks).then((files) => {
-      console.log(`batchTask done: ${files}`);
+      this.logger.log(`batchTask done: ${files}`);
     });
   }
 

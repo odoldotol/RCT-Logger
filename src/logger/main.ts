@@ -35,6 +35,25 @@ async function bootstrap() {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   });
 
+  /*
+  fakeDownload 중에 강제로 USB 제거시 발생하는 아래의 쓰기에러를 임시로 처리하기 위해 추가
+
+  Unhandled Rejection at: Promise {
+    <rejected> [Error: EIO: i/o error, write] {
+      errno: -5,
+      code: 'EIO',
+      syscall: 'write'
+    }
+  } reason: [Error: EIO: i/o error, write] {
+    errno: -5,
+    code: 'EIO',
+    syscall: 'write'
+  }
+
+  download 구현 완성 후에 위 에러를 catch 하여 ERROR 이벤트를 emit 하여 IO Usb 에서 안전하게 처리할 수 있도록 할 것
+  */
+
+
   const terminate = () => {
     io.close();
     process.exit();
