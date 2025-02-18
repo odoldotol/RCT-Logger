@@ -39,13 +39,13 @@ export class LogRepository {
       readable
       .on("data", (chunk: Buffer) => {
         const value: B103ExtractedData[] = [];
-        buffer = Buffer.concat([buffer, chunk]);
+        buffer = Buffer.concat([buffer.subarray(readIdx), chunk]);
+        readIdx = 0;
         while (buffer.length - readIdx >= 19) {
           const data = buffer.subarray(readIdx, readIdx + 19) as B19Data;
           readIdx += 19;
           value.push(this.unpack(data));
         }
-        readIdx = 0;
         subject.next(value);
       })
       // .on("end", () => {})
