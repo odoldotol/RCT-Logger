@@ -80,7 +80,9 @@ export class Byte19LogDatabase {
     }
 
     const filePath = this.getFilePath(segmentName);
-    return createReadStream(filePath);
+    return createReadStream(filePath, {
+      highWaterMark: 512,
+    });
   }
 
   public lsSegment(): Promise<string[]> {

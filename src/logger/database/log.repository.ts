@@ -30,22 +30,25 @@ export class LogRepository {
 
     const subject = new Subject<B103ExtractedData[]>();
 
-    this.database.readSegment(segmentName).then(readable => {
+    this.database.readSegment(segmentName)
+    .then(readable => {
       // 19바이트 받을떄마다 unpack해서 Subject 에 next
       let buffer = Buffer.alloc(0);
+      let readIdx = 0;
+
       readable
-      .on("data", chunk => {
+      .on("data", (chunk: Buffer) => {
         const value: B103ExtractedData[] = [];
         buffer = Buffer.concat([buffer, chunk]);
-        while (buffer.length >= 19) {
-          const data = buffer.subarray(0, 19) as B19Data;
-          buffer = buffer.subarray(19);
+        while (buffer.length - readIdx >= 19) {
+          const data = buffer.subarray(readIdx, readIdx + 19) as B19Data;
+          readIdx += 19;
           value.push(this.unpack(data));
         }
+        readIdx = 0;
         subject.next(value);
       })
-      .on("end", () => {
-      })
+      // .on("end", () => {})
       .on("close", () => {
         subject.complete();
       })

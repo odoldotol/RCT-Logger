@@ -154,7 +154,7 @@ export class LogService {
             // 객체로 변환
             X.map(dataArr => dataArr.map(data => this.logFactory.create(data))),
           ).subscribe({
-            next: (logArr) => {
+            next: logArr => {
               // 1초단위로 압축 (압축없이 보여줘야하는것은 보여주고)
               logArr.forEach(log => {
 
