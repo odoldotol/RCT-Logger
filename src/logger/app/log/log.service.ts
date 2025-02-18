@@ -17,7 +17,7 @@ export class LogService {
     this.logRepository.create(dataBuffer);
   }
 
-  public async fakeDownload(writeDir: string) {
+  public fakeDownload(writeDir: string) {
     return new Promise<void>(async (resolve, reject) => {
       // 쓰기 스트림 만들고
       const now = new Date();
@@ -146,15 +146,16 @@ export class LogService {
 
         // 읽은 데이터로 엑셀 Row 커밋
         await new Promise<void>((resolve, reject) => {
+
+          let secTime = 0;
+          const secLogArr: Log[] = [];
+
           logStream.pipe(
             // 객체로 변환
             X.map(dataArr => dataArr.map(data => this.logFactory.create(data))),
           ).subscribe({
             next: (logArr) => {
               // 1초단위로 압축 (압축없이 보여줘야하는것은 보여주고)
-              let secTime = 0;
-              const secLogArr: Log[] = [];
-
               logArr.forEach(log => {
 
                 if (log.header.subject == SubjectValue.Data) {
@@ -187,8 +188,9 @@ export class LogService {
 
                 }
 
-                sheet.lastRow?.commit();
               });
+
+              sheet.lastRow?.commit();
             },
             complete: resolve,
             error: reject,

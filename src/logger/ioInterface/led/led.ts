@@ -52,6 +52,7 @@ export class LedInterface {
   private reset(): void {
     if (this.timer != null) {
       clearTimeout(this.timer);
+      clearInterval(this.timer);
       this.timer = null;
     }
   }
