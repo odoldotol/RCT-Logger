@@ -14,6 +14,7 @@ export class LogService {
   ) {}
 
   public log(dataBuffer: B103ExtractedData) {
+    // console.log(this.logFactory.create(dataBuffer)); // test
     this.logRepository.create(dataBuffer);
   }
 
