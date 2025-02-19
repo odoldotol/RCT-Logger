@@ -1,4 +1,6 @@
 export const enum EnvKey {
+  LOG_MONIT = "LOGMONIT",
+
   AR20_PIN = "AR20_PIN",
   AR20_DEBOUNCE = "AR20_DEBOUNCE",
 

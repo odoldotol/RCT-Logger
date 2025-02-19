@@ -15,8 +15,8 @@ const numberValue = bufferToNumber(theBuffer);
 console.log(numberValue);
 
 
-const comBuffer = Buffer.from([0, 1, 0, 1]);
+const comBuffer = Buffer.from([1, 0, 1, 0]);
 
-console.log(comBuffer.compare(theBuffer));
+console.log(comBuffer.reverse().compare(theBuffer));
 
 console.log(0b0010);

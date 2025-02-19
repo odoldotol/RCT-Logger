@@ -5,16 +5,30 @@ import { B103ExtractedData, SubjectValue } from "../../../common";
 import { LogRepository } from "../../../logger/database";
 import * as X from "rxjs/operators";
 import { Log, LogFactory } from "./log.factory";
+import { LoggerConfig } from "../../../config/logger";
 
 export class LogService {
 
   constructor(
+    private readonly loggerConfig: LoggerConfig,
     private readonly logFactory: LogFactory,
     private readonly logRepository: LogRepository
   ) {}
 
   public log(dataBuffer: B103ExtractedData) {
-    // console.log(this.logFactory.create(dataBuffer)); // test
+    if (this.loggerConfig.isLogMonit()) {
+      console.log(dataBuffer.subarray(0, 6).join(""));
+      console.log(dataBuffer.subarray(6, 7).join(""));
+      console.log(dataBuffer.subarray(7, 23).join(""));
+      console.log(dataBuffer.subarray(23, 39).join(""));
+      console.log(dataBuffer.subarray(39, 55).join(""));
+      console.log(dataBuffer.subarray(55, 71).join(""));
+      console.log(dataBuffer.subarray(71, 87).join(""));
+      console.log(dataBuffer.subarray(87, 103).join(""));
+
+      console.log(this.logFactory.create(dataBuffer));
+    }
+
     this.logRepository.create(dataBuffer);
   }
 
@@ -168,7 +182,7 @@ export class LogService {
                         secLogArr.push(log);
                       } else {
                         // 압축,평균 해서 로깅해야하는데 임시로 그냥 하나 로깅함.
-                        // 압축할때 startonoff 는 항상 살려.
+                        // 압축할때 startonoff 는 항상 살려.(on 은 믿을수 있고 그대로 평균내서 표현하고 off 는 무조건 살려서) sp, aux 같은 스위치들도 대부분 살려야함.
                         const logToAdd = secLogArr[0];
                         if (logToAdd) {
                           sheet.addRow({

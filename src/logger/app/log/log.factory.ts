@@ -22,10 +22,10 @@ export class LogFactory {
     const data = getB96ExtractedDataWord6(dataBuffer);
 
     const body: LogBody = {
-      deviceAddress: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWord1, 3, 12, data)),
+      deviceAddress: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWord1, 3, 12, data), true),
       opA: this.getBit(DataStructureIdx.DataWord1, 13, data),
       opB: this.getBit(DataStructureIdx.DataWord1, 14, data),
-      MCAData: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWordMCA, 3, 14, data)),
+      MCAData: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWordMCA, 3, 14, data), true),
       trollyTravel: this.getTrollyTravel(this.getBuffer(DataStructureIdx.DataWord2, 3, 6, data)),
       bridgeTravel: this.getBridgeTravel(this.getBuffer(DataStructureIdx.DataWord2, 7, 10, data)),
       startOff: this.getBit(DataStructureIdx.DataWord2, 11, data),
@@ -80,8 +80,8 @@ export class LogFactory {
       case 0b1011: return TrollyTravel.F4;
       case 0b0100: return TrollyTravel.B1;
       case 0b0110: return TrollyTravel.B2;
-      case 0b0111: return TrollyTravel.B3;
-      case 0b0101: return TrollyTravel.B4;
+      case 0b0101: return TrollyTravel.B3;
+      case 0b0111: return TrollyTravel.B4;
       default: return null;
     }
   }
@@ -144,10 +144,19 @@ export class LogFactory {
    * 각 비트를 왼쪽으로 시프트하고, 계산할 비트를 OR 연산으로 결합
    * 
    * MAX_SAFE_INTEGER 초과하지 않으려면 53비트까지만 가능
+   * 
+   * @param reverse true 면 역순으로 계산. true 로 해서 시리얼데이터의 정순임.
    */
-  private bufferToNumber(buffer: Buffer): number {
+  private bufferToNumber(
+    buffer: Buffer,
+    reverse = false,
+  ): number {
     if (buffer.length > 53) {
       throw new Error(`length is too long: ${buffer.length}`);
+    }
+
+    if (reverse) {
+      buffer = buffer.reverse();
     }
 
     let result = 0;
