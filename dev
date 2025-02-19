@@ -32,6 +32,12 @@ Raspberry Pi OS Lite (64-bit), 438MB, Kernel version: 6.6, Debian version: 12 (b
 로그 로테이트 - DB, 앱, 시스템로그
 
 ## 발열?
+80도부터 성능제한, 셧다운 가능성 있음.
+
+현, 50도 이상 올라가지도 않음.
+로거에서 주기적 온도 체크하기
+이후 문제 보이면 조치하기
+
 쿨링 팬/제어?
 
 # Network(Wifi, SSH)

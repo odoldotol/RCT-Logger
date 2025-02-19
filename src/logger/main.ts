@@ -22,6 +22,7 @@ async function bootstrap() {
 
   database.runBatch();
   app.listen();
+  app.run();
   io.open();
 
   process
@@ -56,6 +57,9 @@ async function bootstrap() {
 
   const terminate = () => {
     io.close();
+    app.stop();
+    database.stopBatch();
+
     process.exit();
   };
 }

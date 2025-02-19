@@ -12,6 +12,8 @@ import {
   LogService
 } from "./log";
 import { LogRepository } from "../database";
+import { CpuTemp } from "./cpuTemp";
+import { Config } from "../../config/init";
 
 class AppFactoryStatic {
 
@@ -26,6 +28,7 @@ class AppFactoryStatic {
     const logFactory = new LogFactory();
 
     const logService = new LogService(
+      Config.loggerConfig,
       logFactory,
       logRepository,
     );
@@ -47,7 +50,12 @@ class AppFactoryStatic {
       usbStorageRouter,
     );
 
-    return new App(router);
+    const cpuTemp = new CpuTemp();
+
+    return new App(
+      router,
+      cpuTemp
+    );
   }
 
 }
