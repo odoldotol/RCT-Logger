@@ -4,8 +4,11 @@ import { AppFactory } from "./app";
 import { Byte19LogDatabase } from "../database";
 import { Config } from "../config/init";
 import { LedGpioName } from "../config";
+import { Logger } from "../common";
 
 async function bootstrap() {
+
+  const logger = new Logger('Logger');
 
   const ioInterface = IOInterfaceFactory.create();
   
@@ -23,14 +26,16 @@ async function bootstrap() {
   database.runBatch();
   app.listen();
   app.run();
-  io.open();
+  await io.open();
 
   process
-  .on('SIGTERM', () => {
-    terminate();
+  .on('SIGTERM', async (signal) => {
+    logger.log(`Received signal: ${signal}`);
+    await terminate();
   })
-  .on('SIGINT', () => {
-    terminate();
+  .on('SIGINT', async (signal) => {
+    logger.log(`Received signal: ${signal}`);
+    await terminate();
   })
   .on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -55,10 +60,10 @@ async function bootstrap() {
   */
 
 
-  const terminate = () => {
+  const terminate = async () => {
     io.close();
     app.stop();
-    database.stopBatch();
+    await database.stopBatch();
 
     process.exit();
   };
