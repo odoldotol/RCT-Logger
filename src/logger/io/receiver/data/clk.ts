@@ -18,12 +18,24 @@ export class ReceiverSerialClk
   }
 
   public run() {
+    if (this.isOpen() == false) {
+      this.log(`SerialClk Cannot run because it is not opened.`);
+      return;
+    }
+
     if (this.edge() != "rising") {
       this.setEdge("rising");
     }
   }
 
+  /**
+   * Closed 면 noop
+   */
   public stop() {
+    if (this.isOpen() == false) {
+      return;
+    }
+
     if (this.edge() != "none") {
       this.setEdge("none");
     }

@@ -7,6 +7,8 @@ import { GpioConfig } from '../../../../config';
 export abstract class GpioOnoff
   extends Onoff
 {
+  private _isOpen = false;
+
   constructor(
     protected readonly config: GpioConfig,
   ) {
@@ -27,12 +29,28 @@ export abstract class GpioOnoff
     );
   }
 
-  public open() {}
+  public open() {
+    if (this._isOpen == true) {
+      return;
+    }
+
+    this._isOpen = true;
+  }
 
   public close() {
-    this.setEdge('none');
+    if (this._isOpen == false) {
+      return;
+    }
+
     this.unwatchAll();
+    this.setEdge('none');
     this.unexport();
+
+    this._isOpen = false;
+  }
+
+  protected isOpen(): boolean {
+    return this._isOpen;
   }
 
 }
