@@ -34,8 +34,6 @@ export class ReceiverStatus
 {
   private readonly logger = new Logger(ReceiverStatus.name);
 
-  private isOpen = false;
-
   private status: Status | null = null;
 
   private turnedOnHandler: Handler = X.noop;
@@ -60,7 +58,7 @@ export class ReceiverStatus
    */
   public override open() {
 
-    if (this.isOpen) {
+    if (this.isOpen()) {
       return;
     }
 
@@ -95,8 +93,6 @@ export class ReceiverStatus
 
     this.setEdge("both");
 
-    this.isOpen = true;
-
     this.logger.log(`ReceiverStatus is opened.`);
   }
 
@@ -106,15 +102,13 @@ export class ReceiverStatus
    */
   public override close() {
 
-    if (this.isOpen == false) {
+    if (this.isOpen() == false) {
       return;
     }
 
     super.close();
 
     this.turnOff();
-
-    this.isOpen = false;
   }
 
   public setHandler(
