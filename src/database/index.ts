@@ -63,7 +63,7 @@ export class Byte19LogDatabase {
       this.writeBufferMap.set(segmentNumber, [ dataBuffer ]);
     }
 
-    this.appendLedInterface.blinkOnce();
+    this.appendLedInterface.blinkOnce(50);
   }
 
   /**
