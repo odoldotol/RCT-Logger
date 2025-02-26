@@ -41,6 +41,10 @@ async function bootstrap() {
     console.error('Uncaught Exception:', err);
     await terminate();
   })
+  .on('uncaughtExceptionMonitor', async (err, origin) => {
+    console.error('Uncaught Exception Monitor:', err, origin);
+    await terminate();
+  })
   .on('unhandledRejection', async (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
     await terminate();
