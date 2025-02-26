@@ -68,12 +68,10 @@ export class Byte19LogDatabase {
 
   /**
    * @todo 체크섬? 검사 통과한것만 주기
-   *
-   * 에러는 txt 파일로 ?
    */
   public async readSegment(segmentName: SegmentName): Promise<Readable> {
+    this.logger.log(`readSegment: ${segmentName}`);
     if (this.writeBufferMap.has(this.getSegmentNumber(segmentName))) {
-      // Todo: 다 읽고 나서 버퍼를 확인하고, 있으면 가져오도록 리팩터링.
       await this.batchTask();
     }
 
@@ -83,11 +81,12 @@ export class Byte19LogDatabase {
     });
   }
 
-  public lsSegment(): Promise<string[]> {
+  public lsSegment(): Promise<SegmentName[]> {
     return readdir(this.databaseConfig.getStoragePath())
-    .then((files) => {
-      return files.map((file) => file.split('.')[0]!);
-    });
+    .then(files => files
+      .map(file => file.split('.')[0]!)
+      .filter(file => /^\d{4}_\d{2}_\d{2}$/.test(file))
+    );
   }
 
   /**
