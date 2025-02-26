@@ -14,6 +14,7 @@ import {
 import { LogRepository } from "../database";
 import { CpuTemp } from "./cpuTemp";
 import { Config } from "../../config/init";
+import { LogExcelService } from "./log/excel.service";
 
 class AppFactoryStatic {
 
@@ -24,16 +25,21 @@ class AppFactoryStatic {
     ioInterface: IOInterface,
     database: Byte19LogDatabase
   ) {
-    const logRepository = new LogRepository(database);
     const logFactory = new LogFactory();
+    const logRepository = new LogRepository(database);
 
+    const logExcelService = new LogExcelService(logFactory);
     const logService = new LogService(
       Config.loggerConfig,
       logFactory,
       logRepository,
+      logExcelService,
     );
 
-    const logController = new LogController(logService);
+    const logController = new LogController(
+      logService,
+      logExcelService,
+    );
 
     const receiverRouter = new ReceiverRouter(
       ioInterface.receiver,
