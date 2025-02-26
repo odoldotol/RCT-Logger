@@ -9,6 +9,135 @@ import {
 } from "../../../common";
 
 export class LogFactory {
+
+  /**
+   * @todo 최적화, 코드정리
+   * 
+   * @param logArr subject 가 data 인 로그만, idx0: 직전sec last log, idx1-end: 현재sec log
+   */
+  public summarizeDataLogs(
+    logArr: Log[],
+    timestamp: number
+  ): Log {
+    /**
+     * 대푯값 찾기 (idx 1-end)  
+     * 갯수당 가중치 10 씩 주기, 추가되는 순서에 따라 가중치 10-n 씩 초기에 주고 시작. => 최대값 찾아서 선택.
+     */
+    const summarize = <T extends keyof LogBody, S extends LogBody[T] >(key: T, logArr: Log[]): S => {
+      type MapValue = {
+        weight: number;
+        value: S;
+      }
+
+      let maxWeightMapValue: MapValue | null = null;
+      
+      const map = new Map<S, MapValue>();
+      
+      const weightUnit = 10;
+      for (let i = 1; i < logArr.length; i++) {
+        const log = logArr[i]!;
+        const value = log.body![key]! as S;
+        
+        let mapValue: MapValue;
+        if (map.has(value)) {
+          mapValue = map.get(value)!;
+          mapValue.weight += weightUnit;
+        } else {
+          mapValue = {
+            weight: weightUnit + (weightUnit - i),
+            value,
+          };
+          map.set(value, mapValue);
+        }
+
+        if (
+          maxWeightMapValue == null ||
+          maxWeightMapValue.weight < mapValue.weight
+        ) {
+          maxWeightMapValue = mapValue;
+        }
+      }
+
+      if (maxWeightMapValue == null) {
+        throw new Error("maxWeightMapValue is null");
+      }
+
+      return maxWeightMapValue.value;
+    }
+
+    /**
+     * 압축하기 (idx 0-end)  
+     * 2개 연속 true 들어오면 true, 아니면 false
+     */
+    const summarizeBoolean = <T extends keyof LogBody, S extends LogBody[T] extends boolean ? LogBody[T] : never>(key: T, logArr: Log[]): boolean => {
+      let prev = false;
+
+      for (const log of logArr) {
+        const value = log.body![key]! as S;
+
+        if (value && prev) {
+          return true;
+        } else {
+          prev = value;
+        }
+      }
+
+      return false;
+    };
+
+    const header: LogHeader = {
+      timestamp,
+      subject: SubjectValue.Data,
+    };
+
+    const body: LogBody = {
+      deviceAddress: summarize("deviceAddress", logArr),
+      opA: summarizeBoolean("opA", logArr),
+      opB: summarizeBoolean("opB", logArr),
+      MCAData: summarize("MCAData", logArr),
+      trollyTravel: summarize("trollyTravel", logArr),
+      bridgeTravel: summarize("bridgeTravel", logArr),
+      startOff: summarizeBoolean("startOff", logArr),
+      startOn: summarizeBoolean("startOn", logArr),
+      siren: summarizeBoolean("siren", logArr),
+      light: summarizeBoolean("light", logArr),
+      mainHoist: summarize("mainHoist", logArr),
+      auxHoist: summarize("auxHoist", logArr),
+      aux1: summarizeBoolean("aux1", logArr),
+      aux2: summarizeBoolean("aux2", logArr),
+      aux3: summarizeBoolean("aux3", logArr),
+      aux4: summarizeBoolean("aux4", logArr),
+      sp1: summarizeBoolean("sp1", logArr),
+      sp2: summarizeBoolean("sp2", logArr),
+      sp3: summarizeBoolean("sp3", logArr),
+      sp4: summarizeBoolean("sp4", logArr),
+      sp5: summarizeBoolean("sp5", logArr),
+      sp6: summarizeBoolean("sp6", logArr),
+      sp7: summarizeBoolean("sp7", logArr),
+      sp8: summarizeBoolean("sp8", logArr),
+      sp9: summarizeBoolean("sp9", logArr),
+      sp10: summarizeBoolean("sp10", logArr),
+      sp11: summarizeBoolean("sp11", logArr),
+      sp12: summarizeBoolean("sp12", logArr),
+      sp13: summarizeBoolean("sp13", logArr),
+      sp14: summarizeBoolean("sp14", logArr),
+      sp15: summarizeBoolean("sp15", logArr),
+      sp16: summarizeBoolean("sp16", logArr),
+      sp17: summarizeBoolean("sp17", logArr),
+      sp18: summarizeBoolean("sp18", logArr),
+      sp19: summarizeBoolean("sp19", logArr),
+      sp20: summarizeBoolean("sp20", logArr),
+      sp21: summarizeBoolean("sp21", logArr),
+      sp22: summarizeBoolean("sp22", logArr),
+      sp23: summarizeBoolean("sp23", logArr),
+      sp24: summarizeBoolean("sp24", logArr),
+    };
+
+    return new Log(
+      header,
+      body,
+    );
+  }
   
   /**
    * @todo 최적화
@@ -19,50 +148,57 @@ export class LogFactory {
       subject: getB1Subject(dataBuffer)[0]!,
     };
 
-    const data = getB96ExtractedDataWord6(dataBuffer);
+    let body: LogBody | null;
 
-    const body: LogBody = {
-      deviceAddress: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWord1, 3, 12, data), true),
-      opA: this.getBit(DataStructureIdx.DataWord1, 13, data),
-      opB: this.getBit(DataStructureIdx.DataWord1, 14, data),
-      MCAData: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWordMCA, 3, 14, data), true),
-      trollyTravel: this.getTrollyTravel(this.getBuffer(DataStructureIdx.DataWord2, 3, 6, data)),
-      bridgeTravel: this.getBridgeTravel(this.getBuffer(DataStructureIdx.DataWord2, 7, 10, data)),
-      startOff: this.getBit(DataStructureIdx.DataWord2, 11, data),
-      startOn: this.getBit(DataStructureIdx.DataWord2, 12, data),
-      siren: this.getBit(DataStructureIdx.DataWord2, 13, data),
-      light: this.getBit(DataStructureIdx.DataWord2, 14, data),
-      mainHoist: this.getMainHoist(this.getBuffer(DataStructureIdx.DataWord3, 3, 6, data)),
-      auxHoist: this.getAuxHoist(this.getBuffer(DataStructureIdx.DataWord3, 7, 10, data)),
-      aux1: this.getBit(DataStructureIdx.DataWord3, 11, data),
-      aux2: this.getBit(DataStructureIdx.DataWord3, 12, data),
-      aux3: this.getBit(DataStructureIdx.DataWord3, 13, data),
-      aux4: this.getBit(DataStructureIdx.DataWord3, 14, data),
-      sp1: this.getBit(DataStructureIdx.DataWord4, 3, data),
-      sp2: this.getBit(DataStructureIdx.DataWord4, 4, data),
-      sp3: this.getBit(DataStructureIdx.DataWord4, 5, data),
-      sp4: this.getBit(DataStructureIdx.DataWord4, 6, data),
-      sp5: this.getBit(DataStructureIdx.DataWord4, 7, data),
-      sp6: this.getBit(DataStructureIdx.DataWord4, 8, data),
-      sp7: this.getBit(DataStructureIdx.DataWord4, 9, data),
-      sp8: this.getBit(DataStructureIdx.DataWord4, 10, data),
-      sp9: this.getBit(DataStructureIdx.DataWord4, 11, data),
-      sp10: this.getBit(DataStructureIdx.DataWord4, 12, data),
-      sp11: this.getBit(DataStructureIdx.DataWord4, 13, data),
-      sp12: this.getBit(DataStructureIdx.DataWord4, 14, data),
-      sp13: this.getBit(DataStructureIdx.DataWord5, 3, data),
-      sp14: this.getBit(DataStructureIdx.DataWord5, 4, data),
-      sp15: this.getBit(DataStructureIdx.DataWord5, 5, data),
-      sp16: this.getBit(DataStructureIdx.DataWord5, 6, data),
-      sp17: this.getBit(DataStructureIdx.DataWord5, 7, data),
-      sp18: this.getBit(DataStructureIdx.DataWord5, 8, data),
-      sp19: this.getBit(DataStructureIdx.DataWord5, 9, data),
-      sp20: this.getBit(DataStructureIdx.DataWord5, 10, data),
-      sp21: this.getBit(DataStructureIdx.DataWord5, 11, data),
-      sp22: this.getBit(DataStructureIdx.DataWord5, 12, data),
-      sp23: this.getBit(DataStructureIdx.DataWord5, 13, data),
-      sp24: this.getBit(DataStructureIdx.DataWord5, 14, data),
-    };
+    if (header.subject == SubjectValue.Data) {
+
+      const data = getB96ExtractedDataWord6(dataBuffer);
+
+      body = {
+        deviceAddress: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWord1, 3, 12, data), true),
+        opA: this.getBit(DataStructureIdx.DataWord1, 13, data),
+        opB: this.getBit(DataStructureIdx.DataWord1, 14, data),
+        MCAData: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWordMCA, 3, 14, data), true),
+        trollyTravel: this.getTrollyTravel(this.getBuffer(DataStructureIdx.DataWord2, 3, 6, data)),
+        bridgeTravel: this.getBridgeTravel(this.getBuffer(DataStructureIdx.DataWord2, 7, 10, data)),
+        startOff: this.getBit(DataStructureIdx.DataWord2, 11, data),
+        startOn: this.getBit(DataStructureIdx.DataWord2, 12, data),
+        siren: this.getBit(DataStructureIdx.DataWord2, 13, data),
+        light: this.getBit(DataStructureIdx.DataWord2, 14, data),
+        mainHoist: this.getMainHoist(this.getBuffer(DataStructureIdx.DataWord3, 3, 6, data)),
+        auxHoist: this.getAuxHoist(this.getBuffer(DataStructureIdx.DataWord3, 7, 10, data)),
+        aux1: this.getBit(DataStructureIdx.DataWord3, 11, data),
+        aux2: this.getBit(DataStructureIdx.DataWord3, 12, data),
+        aux3: this.getBit(DataStructureIdx.DataWord3, 13, data),
+        aux4: this.getBit(DataStructureIdx.DataWord3, 14, data),
+        sp1: this.getBit(DataStructureIdx.DataWord4, 3, data),
+        sp2: this.getBit(DataStructureIdx.DataWord4, 4, data),
+        sp3: this.getBit(DataStructureIdx.DataWord4, 5, data),
+        sp4: this.getBit(DataStructureIdx.DataWord4, 6, data),
+        sp5: this.getBit(DataStructureIdx.DataWord4, 7, data),
+        sp6: this.getBit(DataStructureIdx.DataWord4, 8, data),
+        sp7: this.getBit(DataStructureIdx.DataWord4, 9, data),
+        sp8: this.getBit(DataStructureIdx.DataWord4, 10, data),
+        sp9: this.getBit(DataStructureIdx.DataWord4, 11, data),
+        sp10: this.getBit(DataStructureIdx.DataWord4, 12, data),
+        sp11: this.getBit(DataStructureIdx.DataWord4, 13, data),
+        sp12: this.getBit(DataStructureIdx.DataWord4, 14, data),
+        sp13: this.getBit(DataStructureIdx.DataWord5, 3, data),
+        sp14: this.getBit(DataStructureIdx.DataWord5, 4, data),
+        sp15: this.getBit(DataStructureIdx.DataWord5, 5, data),
+        sp16: this.getBit(DataStructureIdx.DataWord5, 6, data),
+        sp17: this.getBit(DataStructureIdx.DataWord5, 7, data),
+        sp18: this.getBit(DataStructureIdx.DataWord5, 8, data),
+        sp19: this.getBit(DataStructureIdx.DataWord5, 9, data),
+        sp20: this.getBit(DataStructureIdx.DataWord5, 10, data),
+        sp21: this.getBit(DataStructureIdx.DataWord5, 11, data),
+        sp22: this.getBit(DataStructureIdx.DataWord5, 12, data),
+        sp23: this.getBit(DataStructureIdx.DataWord5, 13, data),
+        sp24: this.getBit(DataStructureIdx.DataWord5, 14, data),
+      };
+    } else {
+      body = null;
+    }
 
     return new Log(
       header,
@@ -200,12 +336,15 @@ export class LogFactory {
 
 }
 
-export class Log {
-
+export class Log<T extends SubjectValue = SubjectValue> {
   constructor(
-    public readonly header: LogHeader,
-    public readonly body: LogBody,
+    public readonly header: LogHeader<T>,
+    public readonly body: T extends SubjectValue.Data ? LogBody : null,
   ) {}
+
+  public isDataLog(): this is Log<SubjectValue.Data> {
+    return this.header.subject == SubjectValue.Data && this.body != null;
+  }
 
 }
 
@@ -218,12 +357,12 @@ enum DataStructureIdx {
   DataWord5,
 }
 
-type LogHeader = Readonly<{
+type LogHeader<T extends SubjectValue = SubjectValue> = Readonly<{
   timestamp: number;
-  subject: SubjectValue;
+  subject: T;
 }>;
 
-type LogBody = Readonly<{
+export type LogBody = Readonly<{
   deviceAddress: number | null;
   opA: boolean;
   opB: boolean;
@@ -269,7 +408,7 @@ type LogBody = Readonly<{
 /**
  * 횡행 전|후
  */
-const enum TrollyTravel {
+export enum TrollyTravel {
   F1, // 1000
   F2, // 1010
   F3, // 1001
@@ -283,7 +422,7 @@ const enum TrollyTravel {
 /**
  * 주행 좌|우
  */
-const enum BridgeTravel {
+export enum BridgeTravel {
   L1, // 0100
   L2, // 0110
   L3, // 0101
@@ -297,7 +436,7 @@ const enum BridgeTravel {
 /**
  * M 권상|하
  */
-const enum MainHoist {
+export enum MainHoist {
   U1, // 1000
   U2, // 1010
   U3, // 1001
@@ -311,7 +450,7 @@ const enum MainHoist {
 /**
  * A 권상|하
  */
-const enum AuxHoist {
+export enum AuxHoist {
   U1, // 1000
   U2, // 1010
   U3, // 1001
