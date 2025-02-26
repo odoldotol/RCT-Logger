@@ -2,20 +2,42 @@ import { B103ExtractedData } from "../../../common";
 import { LogRepository } from "../../../logger/database";
 import { LogFactory } from "./log.factory";
 import { LoggerConfig } from "../../../config/logger";
+import { LogExcelService } from "./excel.service";
+import { Subject } from "rxjs";
+import * as X from "rxjs/operators";
+
 
 export class LogService {
+
+  private monitorSubject: Subject<B103ExtractedData> | null = null;
 
   constructor(
     private readonly loggerConfig: LoggerConfig,
     private readonly logFactory: LogFactory,
-    private readonly logRepository: LogRepository
-  ) {}
+    private readonly logRepository: LogRepository,
+    private readonly logExcelService: LogExcelService,
+  ) {
+    if (this.loggerConfig.isLogMonit()) {
+      this.monitorSubject = new Subject<B103ExtractedData>();
+
+      // excel 출력전 압축로직을 모방하여 초당 1회 로깅
+      this.monitorSubject.pipe(
+        X.bufferTime(1000),
+        X.map(dataArr => dataArr.map(data => this.logFactory.create(data))),
+        this.logExcelService.summarizeLogsBySecond(),
+      ).subscribe(logArr => {
+        logArr.forEach(log => {
+          console.log(log);
+        });
+      });
+    }
+  }
 
   /**
    * DB 가 분리 되면 비동기로 전환됨
    */
   public log(dataBuffer: B103ExtractedData) {
-    if (this.loggerConfig.isLogMonit()) {
+    if (this.monitorSubject != null) {
       this.monitLog(dataBuffer);
     }
 
@@ -42,6 +64,13 @@ export class LogService {
    * @todo 초당 1개씩 평균내는 로직 + 엑셀 데이터변환 로직 그대로 적용해서 엑셀 출력 예시 모니터링하기
    */
   private monitLog(dataBuffer: B103ExtractedData) {
+    if (this.monitorSubject == null) {
+      // unreachable
+      return;
+    }
+
+    this.monitorSubject.next(dataBuffer);
+
     // console.log(dataBuffer.subarray(0, 6).join(""));
     // console.log(dataBuffer.subarray(6, 7).join(""));
     // console.log(dataBuffer.subarray(7, 23).join(""));
@@ -50,8 +79,6 @@ export class LogService {
     // console.log(dataBuffer.subarray(55, 71).join(""));
     // console.log(dataBuffer.subarray(71, 87).join(""));
     // console.log(dataBuffer.subarray(87, 103).join(""));
-
-    console.log(this.logFactory.create(dataBuffer));
   }
 
 }

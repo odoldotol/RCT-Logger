@@ -204,7 +204,7 @@ export class LogExcelService {
   /**
    * 스트림읽기에서 들어온 데이터가 그대로 쓰기스트림으로 나가도록 구현하기 쉽도록 next : next
    */
-  private summarizeLogsBySecond(): OperatorFunction<Log[], Log[]> {
+  public summarizeLogsBySecond(): OperatorFunction<Log[], Log[]> {
     return (source: Observable<Log[]>) => new Observable<Log[]>(subscriber => {
       
       const result: Log[] = [];
