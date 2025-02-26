@@ -1,56 +1,8 @@
 const ExcelJS = require('exceljs');
 const fs = require('fs');
 
-
-const workbook = new ExcelJS.Workbook();
-
-workbook.creator = 'Lygorithm from RCT.';
-workbook.created = new Date();
-
-const worksheet2025_01_01 = workbook.addWorksheet('2025_01_01');
-const tabColor = workbook.addWorksheet('tabColor', {properties:{tabColor:{argb:'FFC0000'}}});
-const frozen = workbook.addWorksheet('frozen', {views:[{state: 'frozen', xSplit: 1, ySplit:1}]});
-
-frozen.columns = [
-  { header: 'Id', key: 'id', width: 10 },
-  { header: 'Name', key: 'name', width: 32 },
-  { header: 'D.O.B.', key: 'dob', width: 10 }
-];
-
-frozen.addRow({id: 1, name: 'John Doe', dob: new Date(1970,1,1)});
-frozen.addRow({id: 2, name: 'Jane Doe', dob: new Date(1965,1,7)});
-
-const rows = [
-  [5,'Bob',new Date()], // row by array
-  {id:6, name: 'Barbara', dob: new Date()}
-];
-
-// Add an array of rows with inherited style
-// These new rows will have same styles as last row
-// and return them as array of row objects
-const newRowsStyled = frozen.addRows(rows, 'i');
-
-
-
-
-// plain text note
-frozen.getCell('A1').note = 'Hello, ExcelJS!';
-
-
-// write to a file
-workbook.xlsx.writeFile("./test.xlsx");
-
-
-
-
-
-
-
-
-
-
-const now = new Date();
-const fileName = `download_${now.toLocaleDateString("en-GB", { timeZone: "Asia/Seoul" }).split("/").reverse().join("-")}_${now.toLocaleTimeString("en-GB", { timeZone: "Asia/Seoul" })}.xlsx`;
+// const now = new Date();
+// const fileName = `download_${now.toLocaleDateString("en-GB", { timeZone: "Asia/Seoul" }).split("/").reverse().join("-")}_${now.toLocaleTimeString("en-GB", { timeZone: "Asia/Seoul" })}.xlsx`;
 
 // construct a streaming XLSX workbook writer with styles and shared strings
 const streamWorkbook = new ExcelJS.stream.xlsx.WorkbookWriter({
@@ -58,118 +10,203 @@ const streamWorkbook = new ExcelJS.stream.xlsx.WorkbookWriter({
   // stream: fs.createWriteStream(`./${fileName}`),
   // filename: './streamed-workbook.xlsx',
   useStyles: true,
-  useSharedStrings: true
+  // useSharedStrings: true
 });
+
+const segmentName = '25_01_25';
 
 streamWorkbook.creator = 'Lygorithm from RCT.';
 streamWorkbook.created = new Date();
 
-const sheet1 = streamWorkbook.addWorksheet('sheet1', {views:[{state: 'frozen', xSplit: 6, ySplit:2}]});
+const sheet1 = streamWorkbook.addWorksheet(segmentName, {
+  views: [ { state: 'frozen', xSplit: 8, ySplit: 3 } ]
+});
 
-sheet1.columns = [
-  { key: 'timestamp', width: 17 },
-  { key: 'Ar20Onoff', width: 10 },
-  { key: "deviceAddress", width: 10 },
-  { key: "startOff", width: 10 },
-  { key: "startOn", width: 10 },
-  { key: "MCAData", width: 10 },
+const columnArr = [
+  { key: 'timestamp', width: 14, header: 'Timestamp' },
 
-  { key: "opA", width: 10 },
-  { key: "opB", width: 10 },
-  { key: "siren", width: 10 },
-  { key: "light", width: 10 },
-  { key: "trollyTravel", width: 10 },
-  { key: "bridgeTravel", width: 10 },
-  { key: "mainHoist", width: 10 },
-  { key: "auxHoist", width: 10 },
-  { key: "aux1", width: 10 },
-  { key: "aux2", width: 10 },
-  { key: "aux3", width: 10 },
-  { key: "aux4", width: 10 },
-  { key: "sp1", width: 10 },
-  { key: "sp2", width: 10 },
-  { key: "sp3", width: 10 },
-  { key: "sp4", width: 10 },
-  { key: "sp5", width: 10 },
-  { key: "sp6", width: 10 },
-  { key: "sp7", width: 10 },
-  { key: "sp8", width: 10 },
-  { key: "sp9", width: 10 },
-  { key: "sp10", width: 10 },
-  { key: "sp11", width: 10 },
-  { key: "sp12", width: 10 },
-  { key: "sp13", width: 10 },
-  { key: "sp14", width: 10 },
-  { key: "sp15", width: 10 },
-  { key: "sp16", width: 10 },
-  { key: "sp17", width: 10 },
-  { key: "sp18", width: 10 },
-  { key: "sp19", width: 10 },
-  { key: "sp20", width: 10 },
-  { key: "sp21", width: 10 },
-  { key: "sp22", width: 10 },
-  { key: "sp23", width: 10 },
-  { key: "sp24", width: 10 },
+  // TX
+  { key: "deviceAddress", width: 7, header: 'ID' },
+  { key: 'Ar20Onoff', width: 8, header: 'On/Off' },
+
+  // OP
+  { key: "opA", width: 6, header: 'A' },
+  { key: "opB", width: 6, header: 'B' },
+
+  { key: "startOn", width: 10, header: 'Start On' },
+
+  { key: "siren", width: 8, header: 'Siren' },
+  { key: "light", width: 8, header: 'Light' },
+
+  { key: "aux1", width: 5, header: '1' },
+  { key: "aux2", width: 5, header: '2' },
+  { key: "aux3", width: 5, header: '3' },
+  { key: "aux4", width: 5, header: '4' },
+
+  // trollyTravel 횡행 7행
+  { key: "trollyTravel", width: 7, header: '' },
+  { key: "trollyTravel_F", width: 5, header: 'F' },
+  { key: "trollyTravel_B", width: 5, header: 'B' },
+  { key: "trollyTravel_1", width: 5, header: '1' },
+  { key: "trollyTravel_2", width: 5, header: '2' },
+  { key: "trollyTravel_3", width: 5, header: '3' },
+  { key: "trollyTravel_4", width: 5, header: '4' },
+
+  // bridgeTravel 주행 7행
+  { key: "bridgeTravel", width: 7, header: '' },
+  { key: "bridgeTravel_L", width: 5, header: 'L' },
+  { key: "bridgeTravel_R", width: 5, header: 'R' },
+  { key: "bridgeTravel_1", width: 5, header: '1' },
+  { key: "bridgeTravel_2", width: 5, header: '2' },
+  { key: "bridgeTravel_3", width: 5, header: '3' },
+  { key: "bridgeTravel_4", width: 5, header: '4' },
+
+  // mainHoist Main 7행
+  { key: "mainHoist", width: 7, header: '' },
+  { key: "mainHoist_U", width: 5, header: 'U' },
+  { key: "mainHoist_D", width: 5, header: 'D' },
+  { key: "mainHoist_1", width: 5, header: '1' },
+  { key: "mainHoist_2", width: 5, header: '2' },
+  { key: "mainHoist_3", width: 5, header: '3' },
+  { key: "mainHoist_4", width: 5, header: '4' },
+
+  // auxHoist Aux 7행
+  { key: "auxHoist", width: 7, header: '' },
+  { key: "auxHoist_U", width: 5, header: 'U' },
+  { key: "auxHoist_D", width: 5, header: 'D' },
+  { key: "auxHoist_1", width: 5, header: '1' },
+  { key: "auxHoist_2", width: 5, header: '2' },
+  { key: "auxHoist_3", width: 5, header: '3' },
+  { key: "auxHoist_4", width: 5, header: '4' },
+
+  // SP
+  { key: "sp1", width: 5, header: '1' },
+  { key: "sp2", width: 5, header: '2' },
+  { key: "sp3", width: 5, header: '3' },
+  { key: "sp4", width: 5, header: '4' },
+  { key: "sp5", width: 5, header: '5' },
+  { key: "sp6", width: 5, header: '6' },
+  { key: "sp7", width: 5, header: '7' },
+  { key: "sp8", width: 5, header: '8' },
+  { key: "sp9", width: 5, header: '9' },
+  { key: "sp10", width: 5, header: '10' },
+  { key: "sp11", width: 5, header: '11' },
+  { key: "sp12", width: 5, header: '12' },
+
+  { key: "sp13", width: 5, header: '13' },
+  { key: "sp14", width: 5, header: '14' },
+  { key: "sp15", width: 5, header: '15' },
+  { key: "sp16", width: 5, header: '16' },
+  { key: "sp17", width: 5, header: '17' },
+  { key: "sp18", width: 5, header: '18' },
+  { key: "sp19", width: 5, header: '19' },
+  { key: "sp20", width: 5, header: '20' },
+  { key: "sp21", width: 5, header: '21' },
+  { key: "sp22", width: 5, header: '22' },
+  { key: "sp23", width: 5, header: '23' },
+  { key: "sp24", width: 5, header: '24' },
+
+  { key: "MCAData", width: 12, header: 'MCA Data' },
 ];
 
-sheet1.mergeCells('A1:C1');
-sheet1.mergeCells('D1:F1');
-sheet1.mergeCells('G1:J1');
-sheet1.mergeCells('K1:N1');
-sheet1.getCell('D1').value = 'F';
+sheet1.columns = columnArr.map(column => {
+  const { header, ...rest } = column;
+  return rest;
+});
 
-sheet1.addRow([
-  'Timestamp',
-  'Ar20 On/Off',
-  'Device Address',
-  'Start Off',
-  'Start On',
-  'MCA Data',
+sheet1.getCell('A1').value = '';
+sheet1.getRow(1).commit();
 
-  'Op A',
-  'Op B',
-  'Siren',
-  'Light',
-  'Trolly Travel',
-  'Bridge Travel',
-  'Main Hoist',
-  'Aux Hoist',
-  'Aux 1',
-  'Aux 2',
-  'Aux 3',
-  'Aux 4',
-  'SP 1',
-  'SP 2',
-  'SP 3',
-  'SP 4',
-  'SP 5',
-  'SP 6',
-  'SP 7',
-  'SP 8',
-  'SP 9',
-  'SP 10',
-  'SP 11',
-  'SP 12',
-  'SP 13',
-  'SP 14',
-  'SP 15',
-  'SP 16',
-  'SP 17',
-  'SP 18',
-  'SP 19',
-  'SP 20',
-  'SP 21',
-  'SP 22',
-  'SP 23',
-  'SP 24',
-]);
-sheet1.getCell('B2').note = '송신기의 On/Off 상태';
-sheet1.getRow(2).commit();
+sheet1.getCell('A2').value = segmentName;
 
+sheet1.mergeCells('B2:C2');
+sheet1.getCell('B2').value = 'TX';
 
-// sheet1.addRow({timestamp: new Date(), txOnoff: 'ON', startOnoff: 'ON', r1: 'O', r2: 'O'});
-// sheet1.addRow({timestamp: new Date(), txOnoff: 'ON', startOnoff: 'ON', r1: 'O', r2: 'O', r3: 'O'});
-// sheet1.addRow({timestamp: new Date(), txOnoff: 'OFF', startOnoff: 'OFF'}).commit();
+sheet1.mergeCells('D2:E2');
+sheet1.getCell('D2').value = 'OP';
+
+sheet1.getCell('F2').value = '';
+
+sheet1.mergeCells('G2:H2'); // siren, light
+sheet1.mergeCells('I2:L2'); // aux1-4
+sheet1.getCell('I2').value = 'Aux';
+
+sheet1.mergeCells('M2:S2');
+sheet1.getCell('M2').value = 'Trolly Travel';
+
+sheet1.mergeCells('T2:Z2');
+sheet1.getCell('T2').value = 'Bridge Travel';
+
+sheet1.mergeCells('AA2:AG2');
+sheet1.getCell('AA2').value = 'Main Hoist';
+
+sheet1.mergeCells('AH2:AN2');
+sheet1.getCell('AH2').value = 'Aux Hoist';
+
+sheet1.mergeCells('AO2:BL2');
+sheet1.getCell('AO2').value = 'SP';
+
+sheet1.getCell('BM2').value = '';
+
+sheet1.addRow(columnArr.map(column => column.header));
+
+sheet1.getCell('A3').note = 'TT:MM:SS';
+sheet1.getCell('B3').note = '송신기 ID (10진수)';
+sheet1.getCell('C3').note = '송신기 On/Off 신호';
+
+sheet1.eachRow(row => {
+  row.eachCell(cell => {
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+    let boderBottomStyle = 'hair';
+    if (cell.fullAddress.row == 3) {
+      boderBottomStyle = 'double';
+    }
+
+    cell.border = {
+      top: { style: 'hair' },
+      left: { style: 'thin' },
+      bottom: { style: boderBottomStyle },
+      right: { style: 'thin' }
+    };
+
+    cell.font = { bold: true };
+    
+    let argb;
+    if (cell.fullAddress.col == 1) {
+      argb = 'fcd5b4';
+    } else if (cell.fullAddress.col < 9) {
+      argb = 'd9d9d9';
+    } else if (cell.fullAddress.col < 13) {
+      argb = 'e6b8b7';
+    } else if (cell.fullAddress.col < 41) {
+      argb = 'da9694';
+    } else if (cell.fullAddress.col < 65) {
+      argb = 'c5d9f1';
+    } else if (cell.fullAddress.col == 65) {
+      argb = 'd9d9d9';
+    }
+
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb },
+    };
+  });
+});
+
+sheet1.getRow(3).commit();
+
+sheet1.addRow({
+  timestamp: '10:56:34',
+  Ar20Onoff: 'ON',
+});
+
+sheet1.addRow({
+  timestamp: '10:56:35',
+  deviceAddress: '1',
+  startOn: 'ON',
+});
 
 sheet1.commit();
 
