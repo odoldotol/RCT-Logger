@@ -60,9 +60,6 @@ export class LogService {
     return this.logRepository.getLastSegmentName();
   }
 
-  /**
-   * @todo 초당 1개씩 평균내는 로직 + 엑셀 데이터변환 로직 그대로 적용해서 엑셀 출력 예시 모니터링하기
-   */
   private monitLog(dataBuffer: B103ExtractedData) {
     if (this.monitorSubject == null) {
       // unreachable
