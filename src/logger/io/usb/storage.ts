@@ -1,9 +1,12 @@
 import {
   ACTION,
-  DEVNAME,
   KernelName,
   UdevBlockEvent
 } from ".";
+import {
+  DEVNAME,
+  MountedDir
+} from "../../ioInterface";
 
 export class UsbStorage {
 
@@ -46,7 +49,5 @@ export class UsbStorage {
 }
 
 export type MountPoint = `${typeof MOUNT_ROOT}${KernelName}`;
-
-export type MountedDir = `${MountPoint}${string}`;
 
 const MOUNT_ROOT = "/mnt/usb-";

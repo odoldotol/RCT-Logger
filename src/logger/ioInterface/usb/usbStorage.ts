@@ -1,6 +1,6 @@
 import { EventEmitter } from "stream";
-import { DEVNAME } from "../../io/usb";
-import { MountedDir } from "../../io/usb/storage";
+import { KernelName } from "../../io/usb";
+import { MountPoint } from "../../io/usb/storage";
 
 /**
  * @todo 더 안전하게
@@ -27,3 +27,7 @@ export const enum UsbStorageInterfaceEvent {
   Complete,
   Error,
 }
+
+export type DEVNAME = `/dev/${KernelName}`;
+
+export type MountedDir = `${MountPoint}${string}`;

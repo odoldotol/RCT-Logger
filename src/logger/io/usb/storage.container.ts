@@ -1,11 +1,21 @@
 import { exec } from "child_process";
 import {
+  mkdir,
+  rmdir
+} from "fs/promises";
+import {
   ACTION,
-  DEVNAME,
   UdevBlockEvent
 } from ".";
-import { MountedDir, MountPoint, UsbStorage } from "./storage";
+import {
+  MountPoint,
+  UsbStorage
+} from "./storage";
 import { Logger } from "../../../common";
+import {
+  DEVNAME,
+  MountedDir
+} from "../../ioInterface";
 
 /**
  * 초기에 다수의 USB 스토리지를 처리할 수 있도록 디자인하였으나 하나만 처리해도 충분, 다수 처리는 불필요.
@@ -111,23 +121,23 @@ export class UsbStorageContainer {
         stderr
       ) => {
         if (err) {
-          reject(err);
+          return reject(err);
         }
 
         if (stderr) {
-          reject(stderr);
+          return reject(stderr);
         }
 
         if (stdout == "") {
-          resolve();
+          return resolve();
         } else {
-          reject(stdout);
+          return reject(stdout);
         }
       });
     }).then(() => {
       return usbStorage.removeMountedDir();
-    }).finally(async () => {
-      await this.removeMountPoint(mountedDir).catch(err => this.logger.warn(err));
+    }).finally(() => {
+      this.removeMountPoint(mountedDir);
     });
   }
 
@@ -144,69 +154,33 @@ export class UsbStorageContainer {
         stderr
       ) => {
         if (err) {
-          reject(err);
+          return reject(err);
         }
 
         if (stderr) {
-          reject(stderr);
+          return reject(stderr);
         }
 
         if (stdout == "") {
-          resolve(mountPoint);
+          return resolve(mountPoint);
         } else {
-          reject(stdout);
+          return reject(stdout);
         }
       });
     }).then((mountedDir) => {
       return usbStorage.setMountedDir(mountedDir);
     }).catch(async (err) => {
-      await this.removeMountPoint(mountPoint).catch(err => this.logger.warn(err));
+      await this.removeMountPoint(mountPoint);
       throw err;
     });
   }
 
-  private async createMountPoint(usbStorage: UsbStorage): Promise<MountPoint> {
-    return new Promise<MountPoint>((resolve, reject) => {
-      exec(`mkdir -p ${usbStorage.mountPoint}`, (
-        err,
-        stdout,
-        stderr
-      ) => {
-        if (err) {
-          reject(err);
-        }
-
-        if (stderr) {
-          reject(stderr);
-        }
-
-        if (stdout == "") {
-          resolve(usbStorage.mountPoint);
-        } else {
-          reject(stdout);
-        }
-      });
-    });
+  private createMountPoint(usbStorage: UsbStorage): Promise<MountPoint> {
+    return mkdir(usbStorage.mountPoint, { recursive: true }).then(() => usbStorage.mountPoint);
   }
 
-  private async removeMountPoint(mountPoint: MountPoint | MountedDir): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      exec(`rmdir ${mountPoint}`, (err, stdout, stderr) => {
-        if (err) {
-          reject(err);
-        }
-
-        if (stderr) {
-          reject(stderr);
-        }
-
-        if (stdout == "") {
-          resolve();
-        } else {
-          reject(stdout);
-        }
-      });
-    });
+  private removeMountPoint(mountPoint: MountPoint | MountedDir): Promise<void> {
+    return rmdir(mountPoint).catch(err => this.logger.warn(err));
   }
 
 }

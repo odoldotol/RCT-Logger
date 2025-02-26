@@ -3,6 +3,7 @@ import {
   Logger
 } from "../../../common";
 import {
+  DEVNAME,
   LedInterface,
   UsbStorageInterface,
   UsbStorageInterfaceEvent
@@ -184,7 +185,5 @@ export const enum ACTION {
   Remove = "remove",
   Change = "change",
 }
-
-export type DEVNAME = `/dev/${KernelName}`;
 
 export type KernelName = string;
