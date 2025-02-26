@@ -224,13 +224,13 @@ export class LogExcelService {
       };
 
       const pushResult = () => {
-        let startIdx = 0;
-        if (isFirst == true) {
-          startIdx = 1;
-          isFirst = false;
-        }
-
         if (secLogArrLength >= 4) { // 현재sec log 가 3개 이상
+          let startIdx = 0;
+          if (isFirst == true) {
+            startIdx = 1;
+            isFirst = false;
+          }
+
           result.push(this.logFactory.summarizeDataLogs(secLogArr.slice(startIdx, secLogArrLength), secTime));
         }
       };
@@ -477,7 +477,7 @@ export class LogExcelService {
     segmentName: string,
   ): ExcelJS.Worksheet {
     const sheet = streamWorkbook.addWorksheet(segmentName, {
-      views: [ { state: 'frozen', xSplit: 8, ySplit: 2 } ]
+      views: [ { state: 'frozen', xSplit: 8, ySplit: 3 } ]
     });
 
     // 스트리밍모드에서 칼럼에 alignment, style 설정해도 적용이 안되는것같음
