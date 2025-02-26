@@ -37,8 +37,13 @@ async function bootstrap() {
     logger.log(`Received signal: ${signal}`);
     await terminate();
   })
-  .on('unhandledRejection', (reason, promise) => {
+  .on('uncaughtException', async (err) => {
+    console.error('Uncaught Exception:', err);
+    await terminate();
+  })
+  .on('unhandledRejection', async (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    await terminate();
   });
 
   /*

@@ -5,6 +5,7 @@ import {
   getB6Timestamp,
   getB96ExtractedDataWord6,
   SubjectValue,
+  throwIfNotB96ExtractedDataWord6,
   unpackUTCMsB6Timestamp
 } from "../../../common";
 
@@ -153,6 +154,7 @@ export class LogFactory {
     if (header.subject == SubjectValue.Data) {
 
       const data = getB96ExtractedDataWord6(dataBuffer);
+      throwIfNotB96ExtractedDataWord6(data);
 
       body = {
         deviceAddress: this.bufferToNumber(this.getBuffer(DataStructureIdx.DataWord1, 3, 12, data), true),
