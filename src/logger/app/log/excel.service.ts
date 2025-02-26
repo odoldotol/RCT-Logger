@@ -215,49 +215,66 @@ export class LogExcelService {
        */
       const secLogArr: Log[] = Array(7);
       let secLogArrLength = 1; // 이전 sec log 1개 비워두기
-      
+      let isFirst = true;
+
       let secTime = 0;
 
       const pushSecLog = (log: Log) => {
         secLogArr[secLogArrLength++] = log;
       };
 
+      const pushResult = () => {
+        let startIdx = 0;
+        if (isFirst == true) {
+          startIdx = 1;
+          isFirst = false;
+        }
+
+        if (secLogArrLength >= 4) { // 현재sec log 가 3개 이상
+          result.push(this.logFactory.summarizeDataLogs(secLogArr.slice(startIdx, secLogArrLength), secTime));
+        }
+      };
+
       const subscription = source.subscribe({
         next: logArr => {
-          logArr.forEach(log => {
-            if (log.header.subject == SubjectValue.Data) {
-              const secTimeTemp = Math.floor(log.header.timestamp / 1000) * 1000
-              if (secTime == secTimeTemp) {
-                pushSecLog(log);
-              } else {
-                if (secLogArrLength >= 4) { // 현재sec log 가 3개 이상
-                  result.push(this.logFactory.summarizeDataLogs(secLogArr.slice(0, secLogArrLength), secTime));
+          try {
+            logArr.forEach(log => {
+              if (log.header.subject == SubjectValue.Data) {
+                const secTimeTemp = Math.floor(log.header.timestamp / 1000) * 1000
+                if (secTime == secTimeTemp) {
+                  pushSecLog(log);
+                } else {
+                  pushResult();
+                  secTime = secTimeTemp;
+
+                  // 직전sec last log 를 idx0 에 넣고 secLogArrLength 를 1 로 할당
+                  secLogArr[0] = secLogArr[secLogArrLength-1]!;
+                  secLogArrLength = 1;
+
+                  pushSecLog(log);
                 }
-                secTime = secTimeTemp;
-
-                // 직전sec last log 를 idx0 에 넣고 secLogArrLength 를 1 로 할당
-                secLogArr[0] = secLogArr[secLogArrLength-1]!;
-                secLogArrLength = 1;
-
-                pushSecLog(log);
+              } else {
+                result.push(log);
               }
-            } else {
-              result.push(log);
-            }
-          });
+            });
 
-          subscriber.next(result);
-          result.length = 0;
+            subscriber.next(result);
+            result.length = 0;
+          } catch (error) {
+            subscriber.error(error);
+          }
         },
         error: err => {
           subscriber.error(err);
         },
         complete: () => {
-          if (secLogArrLength >= 4) { // 현재sec log 가 3개 이상
-            result.push(this.logFactory.summarizeDataLogs(secLogArr.slice(0, secLogArrLength), secTime));
+          try {
+            pushResult();
+            subscriber.next(result);
+            subscriber.complete();
+          } catch (error) {
+            subscriber.error(error);
           }
-          subscriber.next(result);
-          subscriber.complete();
         }
       });
 

@@ -44,21 +44,28 @@ export class UsbStorageRouter
     
     const downloadDir = this.getDownloadDir(mountedDir);
 
+    let rangeQuery: string;
+    let writeStream: WriteStream;
     try {
       // Todo: range 읽기에 실패해도 (실패로그는 쓰지만) 기본값으로 다운로드 진행시키기 <- 크레인까지 올라가는 수고가 너무 큼, 노트북 들고 올라가기 어려움.
-      const rangeQuery = await this.getRangeQuery(downloadDir, mountedDir);
-      const writeStream = await this.getWriteStream(downloadDir);
+      rangeQuery = await this.getRangeQuery(downloadDir, mountedDir);
+      writeStream = await this.getWriteStream(downloadDir);
+    } catch (error) {
+      this.answerError(error, deviceName, mountedDir);
+      return;
+    }
 
-      writeStream
-      .on("finish", () => this.answerComplete(deviceName, mountedDir))
-      .on("error", error => this.answerError(error, deviceName, mountedDir));
+    writeStream
+    .on("finish", () => this.answerComplete(deviceName, mountedDir))
+    .on("error", error => this.answerError(error, deviceName, mountedDir));
 
+    try {
       await this.logController.download(
         writeStream,
         rangeQuery
       );
-    } catch (error) {
-      this.answerError(error, deviceName, mountedDir);
+    } catch (error: any) {
+      writeStream.destroy(error);
     }
   }
 
@@ -80,7 +87,7 @@ export class UsbStorageRouter
     deviceName: DEVNAME,
     mountedDir: MountedDir
   ) {
-    this.logger.error(`Failed to fakeDownload`, error);
+    this.logger.error(`Failed to Download`, error);
     // 가능하다면 txt 쓰기
     this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Error, deviceName, mountedDir);
   }
