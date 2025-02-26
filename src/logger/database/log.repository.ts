@@ -1,4 +1,4 @@
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
 import {
   B103ExtractedData,
   B12DataWord6,
@@ -17,47 +17,50 @@ export class LogRepository {
     private readonly database: Database,
   ) {}
 
+  /**
+   * DB 가 분리 되면 비동기로 전환됨
+   */
   public create(dataBuffer: B103ExtractedData) {
     this.database.append(this.pack(dataBuffer));
   }
 
-  public async readSegment(segmentName: string): Promise<Observable<B103ExtractedData[]>> {
-    await this.getSegmentLs().then(segmentNameArr => {
-      if (!segmentNameArr.includes(segmentName)) {
-        throw new Error(`Segment ${segmentName} not found`);
-      }
-    });
+  public getSegmentArr(segmentNameArr: string[]): Segment[] {
+    return segmentNameArr.map(segmentName => this.getSegment(segmentName));
+  }
 
-    const subject = new Subject<B103ExtractedData[]>();
+  public getSegment(segmentName: string): Segment {
+    const dataObx = new Observable<B103ExtractedData[]>(subscriber => {
+      this.database.readSegment(segmentName)
+      .then(readable => {
+        // 19바이트 받을떄마다 unpack해서 Subject 에 next
+        let buffer = Buffer.alloc(0);
+        let readIdx = 0;
 
-    this.database.readSegment(segmentName)
-    .then(readable => {
-      // 19바이트 받을떄마다 unpack해서 Subject 에 next
-      let buffer = Buffer.alloc(0);
-      let readIdx = 0;
-
-      readable
-      .on("data", (chunk: Buffer) => {
-        const value: B103ExtractedData[] = [];
-        buffer = Buffer.concat([buffer.subarray(readIdx), chunk]);
-        readIdx = 0;
-        while (buffer.length - readIdx >= 19) {
-          const data = buffer.subarray(readIdx, readIdx + 19) as B19Data;
-          readIdx += 19;
-          value.push(this.unpack(data));
-        }
-        subject.next(value);
-      })
-      // .on("end", () => {})
-      .on("close", () => {
-        subject.complete();
-      })
-      .on("error", error => {
-        subject.error(error);
+        readable
+        .on("data", (chunk: Buffer) => {
+          const value: B103ExtractedData[] = [];
+          buffer = Buffer.concat([buffer.subarray(readIdx), chunk]);
+          readIdx = 0;
+          while (buffer.length - readIdx >= 19) {
+            const data = buffer.subarray(readIdx, readIdx + 19) as B19Data;
+            readIdx += 19;
+            value.push(this.unpack(data));
+          }
+          subscriber.next(value);
+        })
+        .on("close", () => {
+          subscriber.complete();
+        })
+        .on("error", error => {
+          subscriber.error(error);
+        });
       });
     });
 
-    return subject.asObservable();
+    return {
+      name: segmentName,
+      dataObx
+    };
   }
 
   /**
@@ -118,4 +121,9 @@ export class LogRepository {
     return result as B96ExtractedDataWord6;
   }
 
+}
+
+export interface Segment {
+  name: string;
+  dataObx: Observable<B103ExtractedData[]>;
 }
