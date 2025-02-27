@@ -14,7 +14,9 @@ export class App
   constructor(
     private readonly router: Router,
     private readonly cpuTemp: CpuTemp,
-  ) {}
+  ) {
+    this.logger.log('Initialized.');
+  }
 
   public listen() {
     this.router.listen();

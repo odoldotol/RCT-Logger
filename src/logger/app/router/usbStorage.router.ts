@@ -33,7 +33,7 @@ export class UsbStorageRouter
     this.usbStorageInterface.on(UsbStorageInterfaceEvent.Mounted, this.mountedHandler.bind(this));
     this.usbStorageInterface.on(UsbStorageInterfaceEvent.Umounted, this.umountedHandler.bind(this));
 
-    this.logger.log("UsbStorageRouter is listening.");
+    this.logger.log("Listening.");
   }
 
   private async mountedHandler(

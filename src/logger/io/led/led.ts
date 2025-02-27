@@ -24,6 +24,8 @@ export class Led
     private readonly ledInterface: LedInterface,
   ) {
     super(gpioConfig);
+
+    this.logger.log(`GPIO${this.config.pin} Initialized.`);
   }
 
   public override open(): void {

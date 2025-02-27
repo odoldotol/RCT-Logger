@@ -1,4 +1,7 @@
-import { createReadStream } from 'fs';
+import {
+  appendFileSync,
+  createReadStream
+} from 'fs';
 import {
   appendFile,
   readdir,
@@ -9,6 +12,7 @@ import {
   getKORMidnightMs,
   getKORMs,
   Logger,
+  Runner,
   unpackUTCMsB6Timestamp,
 } from '../common';
 import { DatabaseConfig } from '../config';
@@ -16,8 +20,9 @@ import { Readable } from 'stream';
 import * as Path from 'path';
 import { LedInterface } from '../logger/ioInterface';
 
-export class Byte19LogDatabase {
-
+export class Byte19LogDatabase
+  implements Runner
+{
   private readonly logger = new Logger(Byte19LogDatabase.name);
 
   private readonly writeBufferMap = new Map<SegmentNumber, WriteBuffer>();
@@ -30,28 +35,19 @@ export class Byte19LogDatabase {
   ) {
     this.lsSegment(); // getStoragePath 체크, 없으면 에러로 종료.
 
-    this.logger.log('Byte19LogDatabase is initialized.');
+    this.logger.log('Initialized.');
   }
 
-  public runBatch() {
-    this.batchTimer = setTimeout(() => {
-      this.batchTask()
-      .catch((err) => {
-        this.logger.error('batchTask error', err);
-      })
-      .finally(() => {
-        this.runBatch();
-      });
-    }, this.databaseConfig.getBatchInterval());
+  public run() {
+    this.runBatch();
+
+    this.logger.log('Batch is running.');
   }
 
-  public async stopBatch(): Promise<void> {
-    if (this.batchTimer != null) {
-      clearTimeout(this.batchTimer);
-      this.batchTimer = null;
-    }
-    
-    await this.batchTask();
+  public stop() {
+    this.stopBatch();
+
+    this.logger.log('Batch is stopped.');
   }
 
   public append(dataBuffer: B19Data) {
@@ -89,6 +85,47 @@ export class Byte19LogDatabase {
     );
   }
 
+  private runBatch() {
+    this.batchTimer = setTimeout(() => {
+      this.batchTask()
+      .catch((err) => {
+        this.logger.error('batchTask error', err);
+      })
+      .finally(() => {
+        this.runBatch();
+      });
+    }, this.databaseConfig.getBatchInterval());
+  }
+
+  /**
+   * 배치작업 타이머를 제거하고 배치작업을 동기적으로 한번 수행
+   */
+  private stopBatch(): void {
+    if (this.batchTimer != null) {
+      clearTimeout(this.batchTimer);
+      this.batchTimer = null;
+    }
+    
+    if (this.writeBufferMap.size == 0) {
+      return;
+    }
+
+    this.writeBufferMap.forEach((writeBuffer, segmentNumber) => {
+      const filePath = this.getFilePath(segmentNumber);
+      const data = Buffer.concat(writeBuffer);
+
+      try {
+        appendFileSync(filePath, data, {
+          flush: true,
+        });
+
+        this.logger.log(`batchTask done: ${filePath}`);
+      } catch (err) {
+        this.logger.error(`batchTask error: ${filePath}`, err);
+      }
+    });
+  }
+
   /**
    * 버퍼에 있는 데이터를 즉시 디스크에 쓴다(노캐싱)  
    * 
@@ -101,7 +138,7 @@ export class Byte19LogDatabase {
 
     const tasks: Promise<string>[] = [];
 
-    this.writeBufferMap.forEach(async (writeBuffer, segmentNumber) => {
+    this.writeBufferMap.forEach((writeBuffer, segmentNumber) => {
       const filePath = this.getFilePath(segmentNumber);
       const data = Buffer.concat(writeBuffer);
       

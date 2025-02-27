@@ -1,4 +1,7 @@
-import { B103ExtractedData } from "../../../common";
+import {
+  B103ExtractedData,
+  Logger
+} from "../../../common";
 import { LogRepository } from "../../../logger/database";
 import { LogFactory } from "./log.factory";
 import { LoggerConfig } from "../../../config/logger";
@@ -8,6 +11,8 @@ import * as X from "rxjs/operators";
 
 
 export class LogService {
+
+  private readonly logger = new Logger(LogService.name);
 
   private monitorSubject: Subject<B103ExtractedData> | null = null;
 
@@ -30,6 +35,8 @@ export class LogService {
           console.log(log);
         });
       });
+
+      this.logger.log("Monitor Activated.");
     }
   }
 

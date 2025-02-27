@@ -23,59 +23,52 @@ async function bootstrap() {
     database
   );
 
-  database.runBatch();
+  listenSignal();
+  listenUncaught();
+
+  database.run();
   app.listen();
   app.run();
   await io.open();
 
-  process
-  .on('SIGTERM', async (signal) => {
-    logger.log(`Received signal: ${signal}`);
-    await terminate();
-  })
-  .on('SIGINT', async (signal) => {
-    logger.log(`Received signal: ${signal}`);
-    await terminate();
-  })
-  .on('uncaughtException', async (err) => {
-    console.error('Uncaught Exception:', err);
-    await terminate();
-  })
-  .on('uncaughtExceptionMonitor', async (err, origin) => {
-    console.error('Uncaught Exception Monitor:', err, origin);
-    await terminate();
-  })
-  .on('unhandledRejection', async (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    await terminate();
-  });
+  logger.log('Logger is working...');
 
-  /*
-  fakeDownload 중에 강제로 USB 제거시 발생하는 아래의 쓰기에러를 임시로 처리하기 위해 추가
-
-  Unhandled Rejection at: Promise {
-    <rejected> [Error: EIO: i/o error, write] {
-      errno: -5,
-      code: 'EIO',
-      syscall: 'write'
-    }
-  } reason: [Error: EIO: i/o error, write] {
-    errno: -5,
-    code: 'EIO',
-    syscall: 'write'
+  function listenSignal() {
+    process
+    .on('SIGTERM', (signal) => {
+      logger.log(`Received signal: ${signal}`);
+      terminate(0);
+    })
+    .on('SIGINT', (signal) => {
+      logger.log(`Received signal: ${signal}`);
+      terminate(0);
+    });
   }
 
-  download 구현 완성 후에 위 에러를 catch 하여 ERROR 이벤트를 emit 하여 IO Usb 에서 안전하게 처리할 수 있도록 할 것
-  */
+  function listenUncaught() {
+    process
+    .on('uncaughtException', (err) => {
+      console.error('Uncaught Exception:', err);
+      terminate(1);
+    })
+    .on('uncaughtExceptionMonitor', (err, origin) => {
+      console.error('Uncaught Exception Monitor:', err, origin);
+      terminate(1);
+    })
+    .on('unhandledRejection', (reason, promise) => {
+      console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+      terminate(1);
+    });
+  }
 
-
-  const terminate = async () => {
+  function terminate(code: number) {
     io.close();
     app.stop();
-    await database.stopBatch();
+    database.stop();
 
-    process.exit();
-  };
+    process.exit(code);
+  }
+
 }
 
 bootstrap();

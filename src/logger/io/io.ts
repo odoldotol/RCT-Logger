@@ -12,7 +12,9 @@ export class IO
     private readonly receiver: Receiver,
     private readonly usb: Usb,
     private readonly ledContainer: LedContainer,
-  ) {}
+  ) {
+    this.logger.log('Initialized.');
+  }
 
   public async open(): Promise<void> {
     this.ledContainer.open();

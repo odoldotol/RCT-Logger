@@ -48,7 +48,7 @@ export class ReceiverStatus
   ) {
     super(gpioConfigService.getReceiverGpioConfig(ReceiverGpioName.AR20));
 
-    this.logger.log(`AR20 GPIO${this.config.pin} is initialized.`);
+    this.logger.log(`GPIO${this.config.pin} Initialized.`);
   }
 
   /**
@@ -92,8 +92,6 @@ export class ReceiverStatus
     }
 
     this.setEdge("both");
-
-    this.logger.log(`ReceiverStatus is opened.`);
   }
 
   /**

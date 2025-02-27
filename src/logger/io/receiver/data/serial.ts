@@ -13,7 +13,7 @@ export class ReceiverSerial
   ) {
     super(gpioConfigService.getReceiverGpioConfig(ReceiverGpioName.SERIAL));
 
-    this.log(`Serial GPIO${this.config.pin} is initialized.`);
+    this.log(`[Serial] GPIO${this.config.pin} Initialized.`);
   }
 
 }

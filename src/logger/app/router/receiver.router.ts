@@ -31,7 +31,7 @@ export class ReceiverRouter
       }
     );
 
-    this.logger.log("ReceiverRouter is listening.");
+    this.logger.log("Listening.");
   }
  
 }

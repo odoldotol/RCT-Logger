@@ -14,7 +14,7 @@ export class ReceiverSerialClk
   ) {
     super(gpioConfigService.getReceiverGpioConfig(ReceiverGpioName.SERIAL_CLK));
 
-    this.log(`SerialClk GPIO${this.config.pin} is initialized.`);
+    this.log(`[SerialClk] GPIO${this.config.pin} Initialized.`);
   }
 
   public run() {

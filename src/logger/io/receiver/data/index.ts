@@ -33,24 +33,26 @@ export class ReceiverData
     this.clk.open();
     this.serial.open();
 
-    this.log('ReceiverData is opened.');
+    this.log('[ReceiverData] Opened.');
   }
 
   public close() {
     this.clk.close();
     this.serial.close();
+
+    this.log('[ReceiverData] Closed.');
   }
 
   public run() {
     this.clk.run();
 
-    this.log('ReceiverData is running now.');
+    this.log('[ReceiverData] Running.');
   }
 
   public stop() {
     this.clk.stop();
 
-    this.log('ReceiverData is stopped.');
+    this.log('[ReceiverData] Stopped.');
   }
 
 }
