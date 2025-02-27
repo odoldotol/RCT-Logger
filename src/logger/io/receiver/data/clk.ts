@@ -3,10 +3,12 @@ import {
   GpioConfigService,
   ReceiverGpioName
 } from "../../../../config";
+import { Runner } from "../../../../common";
 
 
 export class ReceiverSerialClk
   extends GpioOnoff
+  implements Runner
 {
   constructor(
     gpioConfigService: GpioConfigService,

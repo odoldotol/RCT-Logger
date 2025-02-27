@@ -96,8 +96,8 @@ export class Receiver
 
     this.receiverInterface.setIsOnCallee(() => this.status.isOn());
 
-    this.status.open();
     this.openChild();
+    this.status.open();
   }
 
   public close() {
