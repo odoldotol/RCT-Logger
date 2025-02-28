@@ -5,7 +5,9 @@ import {
 } from "../../../../config";
 import { Runner } from "../../../../common";
 
-
+/**
+ * @todo logger 주입받지 말기
+ */
 export class ReceiverSerialClk
   extends GpioOnoff
   implements Runner

@@ -4,6 +4,9 @@ import { ReceiverSerial } from "./serial";
 
 export * from './factory';
 
+/**
+ * @todo logger 주입받지 말기, 데이터 채널 주입받기
+ */
 export class ReceiverData
   implements IO
 {

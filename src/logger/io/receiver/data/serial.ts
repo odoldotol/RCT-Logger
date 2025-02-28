@@ -4,6 +4,9 @@ import {
 } from "../../../../config";
 import { GpioPigpio } from "../../../../logger/io/gpio";
 
+/**
+ * @todo logger 주입받지 말기
+ */
 export class ReceiverSerial
   extends GpioPigpio
 {
