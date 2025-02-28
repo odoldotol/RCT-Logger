@@ -34,7 +34,7 @@ PM2 (5.4.3)
 - 시스템 모니터링 & 리부트
 - Watchdog Timer
 
-[] 앱 - heartbeat
+[] 프로세스 - heartbeat
 
 [] 메모리 - 누수, 과도한 사용
 App - 80-90M(평시), 140M(다운로드)
@@ -126,7 +126,7 @@ SYNC_CLK 의 상승엣지(데이터 중위)에서 SERIAL_DATA 읽기
 ### 정확도, 안정성
 - onoff < node-libgpiod < pigpio
 - 이벤트 루프 분리, 프로세스 분리
-  - [] 차일드프로세스 헬스체킹/재시작 등 안정성, 회복성 => pm2 로 관리? 소켓?
+  - [] 차일드프로세스 회복성 => 재시작, heartbeat
 - 최소화 하고 scheduling policy, priority 조정
 - stdio(Uint8Array) 로 데이터 전달
 - [] timestamp 정확도 (현재, 오차범위: +메인 프로세스의 이벤트루프 레이턴시)
