@@ -38,8 +38,10 @@ export class Receiver
   private readonly logger = new Logger(Receiver.name);
 
   private child: ChildProcess;
+
   private waitingActivatedChild: Promise<void> | null = null;
   private waitingActivatedChildResolver: (() => void) | null = null;
+  private waitingOpenedChildResolver: (() => void) | null = null;
 
   constructor(
     private readonly status: ReceiverStatus,
@@ -83,7 +85,7 @@ export class Receiver
   }
 
   private waitChildActivating(): void {
-    this.waitingActivatedChild = new Promise((resolve) => {
+    this.waitingActivatedChild = new Promise<void>((resolve) => {
       this.waitingActivatedChildResolver = () => {
         resolve();
         this.logger.log("Child activated.");
@@ -120,11 +122,15 @@ export class Receiver
     this.stopChild();
   }
 
-  /**
-   * @Todo 차일드 오픈 기다리기
-   */
   private openChild(): Promise<void> {
     this.ipc({ signal: ChildSignal.Open });
+
+    return new Promise<void>((resolve) => {
+      this.waitingOpenedChildResolver = () => {
+        resolve();
+        this.waitingOpenedChildResolver = null;
+      };
+    });
   }
 
   private closeChild() {
@@ -177,6 +183,9 @@ export class Receiver
 
     this.child.on('message', (message: IPCMessage) => {
       switch (message.signal) {
+        case ChildSignal.Log:
+          message.log && this.logger.log(`Child | ${message.log}`);
+          break;
         case ChildSignal.Activated:
           if (this.waitingActivatedChildResolver == null) {
             this.logger.warn("Child activated but no resolver.");
@@ -184,8 +193,12 @@ export class Receiver
             this.waitingActivatedChildResolver();
           }
           break;
-        case ChildSignal.Log:
-          message.log && this.logger.log(`Child | ${message.log}`);
+        case ChildSignal.Open:
+          if (this.waitingOpenedChildResolver == null) {
+            this.logger.warn("Child opened but no resolver.");
+          } else {
+            this.waitingOpenedChildResolver();
+          }
           break;
         default:
           console.error(`child process unknown signal: ${message}`);

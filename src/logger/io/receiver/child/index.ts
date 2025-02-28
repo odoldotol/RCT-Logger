@@ -44,8 +44,6 @@ export class Child {
     this.ipc({ signal: ChildSignal.Activated });
   }
 
-  private healthCheck() {}
-
   private onSignal() {
     process.on("SIGINT", () => {
       this.data.close();
@@ -61,6 +59,7 @@ export class Child {
       switch (msg.signal) {
         case ChildSignal.Open:
           this.data.open();
+          this.ipc({ signal: ChildSignal.Open });
           break;
         case ChildSignal.Close:
           this.data.close();
@@ -70,9 +69,6 @@ export class Child {
           break;
         case ChildSignal.Stop:
           this.data.stop();
-          break;
-        case ChildSignal.Health:
-          this.healthCheck();
           break;
         default:
       }
@@ -100,7 +96,6 @@ export const enum ChildSignal {
   Open,
   Stop,
   Run,
-  Health,
   Log,
   Activated,
 }

@@ -32,8 +32,6 @@ export class ReceiverData
 
     this.clk.open();
     this.serial.open();
-
-    this.log('[ReceiverData] Opened.');
   }
 
   public close() {
