@@ -29,9 +29,6 @@ import {
   IPCMessage
 } from "./child";
 
-/**
- * @Todo 차일드 재시작
- */
 export class Receiver
   implements IO
 {
@@ -55,27 +52,12 @@ export class Receiver
   }
 
   public async open() {
-    if (this.waitingActivatedChild == null) {
-      throw new Error("Cannot wait for child activating.");
-    }
-
-    await this.waitingActivatedChild;
-
-    if (this.child.stdout == null) {
-      throw new Error("Child stdout is null.");
-    }
-
-    this.child.stdout.pipe(this.rctProtocol)
-    .on('data', (data: B192DataWord6) => {
-      this.testLedInterface.blinkOnce();
-      this.pushData(this.getB103ExtractedData(data));
-    });
+    await this.openChild();
 
     this.status
     .on(Status.ON, this.onHandler.bind(this))
     .on(Status.OFF, this.offHandler.bind(this));
 
-    await this.openChild();
     this.status.open();
   }
 
@@ -122,7 +104,23 @@ export class Receiver
     this.stopChild();
   }
 
-  private openChild(): Promise<void> {
+  private async openChild(): Promise<void> {
+    if (this.waitingActivatedChild == null) {
+      throw new Error("Cannot wait for child activating.");
+    }
+
+    await this.waitingActivatedChild;
+
+    if (this.child.stdout == null) {
+      throw new Error("Child stdout is null.");
+    }
+
+    this.child.stdout.pipe(this.rctProtocol)
+    .on('data', (data: B192DataWord6) => {
+      this.testLedInterface.blinkOnce();
+      this.pushData(this.getB103ExtractedData(data));
+    });
+
     this.ipc({ signal: ChildSignal.Open });
 
     return new Promise<void>((resolve) => {
@@ -146,6 +144,9 @@ export class Receiver
     this.ipc({ signal: ChildSignal.Stop });
   }
 
+  /**
+   * @todo 정리좀..
+   */
   private listenChild() {
     this.child.on('spawn', () => {
       this.logger.log(`Child spawned, PID: ${this.child.pid}`);
@@ -218,13 +219,19 @@ export class Receiver
       console.error('child process error:', err);
     });
     
-    this.child.on('exit', (code, signal) => {
+    this.child.on('exit', async (code, signal) => {
       this.logger.log(`child process exited with code ${code} and signal ${signal}`);
-      
-      // on/off 상태에 따라 run 해줘야함
 
       this.waitChildActivating();
       this.startChild();
+
+      await this.openChild();
+
+      if (this.status.isOn() == true) {
+        this.runChild();
+      } else {
+        this.stopChild();
+      }
     });
 
     this.child.stderr?.on('data', (data) => {
