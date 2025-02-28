@@ -11,22 +11,26 @@ import {
   LedContainer
 } from "./led";
 import { LedGpioName } from "../../config";
+import { Ar20 } from "./receiver/status/ar20";
 
 
 class IOFactoryStatic {
 
   public create(ioInterface: IOInterface) {
-    const status = new ReceiverStatus(Config.gpioConfigService);
+    const ar20 = new Ar20(Config.gpioConfigService);
+
+    const receiverStatus = new ReceiverStatus(ar20);
     const rctProtocol = new RCTProtocol();
 
     const receiver = new Receiver(
-      status,
+      receiverStatus,
       rctProtocol,
       ioInterface.receiver,
       ioInterface.ledContainer.get(LedGpioName.Test)
     );
 
     const usbStorageContainer = new UsbStorageContainer();
+
     const usb = new Usb(
       usbStorageContainer,
       ioInterface.usbStorage,

@@ -6,21 +6,7 @@ import { B103ExtractedData } from "../../../common";
 
 export class ReceiverInterface {
 
-  private isSetIsOnCallee = false;
-  private isOnCallee = () => false;
-
   private readonly dataStream = new Subject<B103ExtractedData>();
-
-  public setIsOnCallee(callee: () => boolean) {
-    if (this.isSetIsOnCallee == false) {
-      this.isOnCallee = callee;
-      this.isSetIsOnCallee = true;
-    }
-  }
-
-  public isOn(): boolean {
-    return this.isOnCallee();
-  }
 
   public pushData(data: B103ExtractedData): void {
     this.dataStream.next(data);

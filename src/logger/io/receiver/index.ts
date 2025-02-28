@@ -7,11 +7,11 @@ import {
   Logger,
   packDateBuffer,
   SubjectValue,
-  // Logger
 } from "../../../common";
 import {
-  HandlerArg,
-  ReceiverStatus
+  ReceiverStatus,
+  Status,
+  StatusEventCode
 } from "./status";
 import {
   LedInterface,
@@ -41,26 +41,6 @@ export class Receiver
   private waitingActivatedChild: Promise<void> | null = null;
   private waitingActivatedChildResolver: (() => void) | null = null;
 
-  private readonly turnedOnHandler = (arg: HandlerArg) => {
-    this.logger.log("Status: On");
-
-    if (arg == HandlerArg.OnRun) {
-      this.pushData(this.getAr20TurnedOnB103Data());
-    }
-
-    this.runChild();
-  };
-
-  private readonly turnedOffHandler = (arg: HandlerArg) => {
-    this.logger.log("Status: Off");
-
-    if (arg == HandlerArg.OnRun) {
-      this.pushData(this.getAr20TurnedOffB103Data());
-    }
-
-    this.stopChild();
-  };
-
   constructor(
     private readonly status: ReceiverStatus,
     private readonly rctProtocol: RCTProtocol,
@@ -89,14 +69,10 @@ export class Receiver
       this.pushData(this.getB103ExtractedData(data));
     });
 
-    this.status.setHandler(
-      this.turnedOnHandler,
-      this.turnedOffHandler
-    );
+    this.status.on(Status.ON, this.onHandler.bind(this));
+    this.status.on(Status.OFF, this.offHandler.bind(this));
 
-    this.receiverInterface.setIsOnCallee(() => this.status.isOn());
-
-    this.openChild();
+    await this.openChild();
     this.status.open();
   }
 
@@ -119,7 +95,26 @@ export class Receiver
     this.receiverInterface.pushData(buffer);
   }
 
-  private openChild() {
+  private onHandler(code: StatusEventCode) {
+    if (code == StatusEventCode.Work) {
+      this.pushData(this.getAr20TurnedOnB103Data());
+    }
+
+    this.runChild();
+  }
+
+  private offHandler(code: StatusEventCode) {
+    if (code == StatusEventCode.Work) {
+      this.pushData(this.getAr20TurnedOffB103Data());
+    }
+
+    this.stopChild();
+  }
+
+  /**
+   * @Todo 차일드 오픈 기다리기
+   */
+  private openChild(): Promise<void> {
     this.ipc({ signal: ChildSignal.Open });
   }
 

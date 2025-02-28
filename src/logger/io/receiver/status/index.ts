@@ -1,12 +1,10 @@
+import { EventEmitter } from "stream";
 import {
-  GpioConfigService,
-  ReceiverGpioName
-} from "../../../../config";
-import { GpioOnoff } from "../../gpio";
-import {
+  IO,
   Level,
   Logger
 } from "../../../../common";
+import { Ar20 } from "./ar20";
 import * as X from "rxjs";
 
 /**
@@ -30,25 +28,21 @@ import * as X from "rxjs";
  * 
  */
 export class ReceiverStatus
-  extends GpioOnoff
+  extends EventEmitter<ReceiverStatusEventMap>
+  implements IO
 {
   private readonly logger = new Logger(ReceiverStatus.name);
 
   private status: Status | null = null;
-
-  private turnedOnHandler: Handler = X.noop;
-  private turnedOffHandler: Handler = X.noop;
 
   private onWaitingTime = 1500;
   private rejectWaitForOn: (() => void) | null = null;
   private onTimer: NodeJS.Timeout | null = null;
 
   constructor(
-    gpioConfigService: GpioConfigService,
+    private readonly ar20: Ar20,
   ) {
-    super(gpioConfigService.getReceiverGpioConfig(ReceiverGpioName.AR20));
-
-    this.logger.log(`GPIO${this.config.pin} Initialized.`);
+    super();
   }
 
   /**
@@ -56,15 +50,14 @@ export class ReceiverStatus
    * 
    * @test 송신기와 수신기 모두 정상일떄 | 송신기 꺼져있을때 | 송신기주소 다를떄 3 가지 상태에서 open 을 할 수 있는지
    */
-  public override open() {
-
-    if (this.isOpen()) {
+  public open() {
+    if (this.ar20.isOpen() == true) {
       return;
     }
 
-    super.open();
+    this.ar20.open();
 
-    this.watch((err, level) => {
+    this.ar20.watch((err, level) => {
       if (err) {
         console.error(err);
         return;
@@ -85,55 +78,43 @@ export class ReceiverStatus
       }
     });
 
-    if (this.readSync() == Level.High) {
-      this.waitForOn();
+    if (this.ar20.readSync() == Level.High) {
+      this.waitForOn(StatusEventCode.Init);
     } else {
-      this.turnOff();
+      this.turnOff(StatusEventCode.Init);
     }
 
-    this.setEdge("both");
+    this.ar20.setEdge("both");
   }
 
-  /**
-   * Disables aterts for the GPIO, Removes all listeners.
-   * turn off
-   */
-  public override close() {
-
-    if (this.isOpen() == false) {
+  public close() {
+    if (this.ar20.isOpen() == false) {
       return;
     }
 
-    super.close();
+    this.ar20.close();
 
-    this.turnOff();
-  }
-
-  public setHandler(
-    turnedOnHandler: Handler,
-    turnedOffHandler: Handler
-  ) {
-    this.turnedOnHandler = turnedOnHandler;
-    this.turnedOffHandler = turnedOffHandler;
+    this.turnOff(StatusEventCode.Close);
   }
 
   public isOn(): boolean {
-    return this.status == Status.On;
+    return this.status == Status.ON;
   }
 
   /**
    * 1s 간 무탈하다면,
    * turn on this.status & call turnedOnHandler
    */
-  private waitForOn() {
+  private waitForOn(code: StatusEventCode = StatusEventCode.Work) {
     new Promise<void>((resolve, reject) => {
       this.rejectWaitForOn = reject;
       this.onTimer = setTimeout(() => {
         resolve();
       }, this.onWaitingTime);
     }).then(() => {
-      this.turnedOnHandler(this.status == null ? HandlerArg.Init : HandlerArg.OnRun);
-      this.status = Status.On;
+      this.status = Status.ON;
+      this.logStatus(code);
+      this.emit(Status.ON, code);
     }).catch(X.noop);
   }
 
@@ -142,26 +123,42 @@ export class ReceiverStatus
    * turn off this.status
    * call turnedOffHandler
    */
-  private turnOff() {
+  private turnOff(code: StatusEventCode = StatusEventCode.Work) {
     this.rejectWaitForOn && this.rejectWaitForOn();
     this.onTimer && (clearTimeout(this.onTimer), this.onTimer = null);
 
-    if (this.status != Status.Off) {
-      this.turnedOffHandler(this.status == null ? HandlerArg.Init : HandlerArg.OnRun);
-      this.status = Status.Off;
+    if (this.status != Status.OFF) {
+      this.status = Status.OFF;
+      this.logStatus(code);
+      this.emit(Status.OFF, code);
+    }
+  }
+
+  private logStatus(code: StatusEventCode) {
+    if (this.status == null) {
+      return;
+    }
+
+    if (code == StatusEventCode.Work) {
+      this.logger.log(`Turned ${Status[this.status]}.`);
+    } else {
+      this.logger.log(`${Status[this.status]} with ${StatusEventCode[code]}.`);
     }
   }
 
 }
 
-const enum Status {
-  Off,
-  On,
+export enum Status {
+  OFF,
+  ON,
 }
 
-export const enum HandlerArg {
+type ReceiverStatusEventMap = {
+  [K in Status]: [StatusEventCode];
+};
+
+export enum StatusEventCode {
+  Work,
   Init,
-  OnRun,
+  Close,
 }
-
-type Handler = (arg: HandlerArg) => void;

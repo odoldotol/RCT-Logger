@@ -30,15 +30,11 @@ export abstract class GpioOnoff
   }
 
   public open() {
-    if (this._isOpen == true) {
-      return;
-    }
-
     this._isOpen = true;
   }
 
   public close() {
-    if (this._isOpen == false) {
+    if (this.isOpen() == false) {
       return;
     }
 
@@ -49,7 +45,7 @@ export abstract class GpioOnoff
     this._isOpen = false;
   }
 
-  protected isOpen(): boolean {
+  public isOpen(): boolean {
     return this._isOpen;
   }
 
