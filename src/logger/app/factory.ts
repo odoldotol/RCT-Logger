@@ -46,17 +46,17 @@ class AppFactoryStatic {
       logController
     );
 
+    const cpuTemp = new CpuTemp();
     const usbStorageRouter = new UsbStorageRouter(
       ioInterface.usbStorage,
-      logController
+      logController,
+      cpuTemp,
     );
 
     const router = new Router(
       receiverRouter,
       usbStorageRouter,
     );
-
-    const cpuTemp = new CpuTemp();
 
     return new App(
       router,

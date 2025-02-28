@@ -1,4 +1,8 @@
 import {
+  createWriteStream,
+  WriteStream
+} from "fs";
+import {
   mkdir,
   // readFile,
 } from "fs/promises";
@@ -14,7 +18,7 @@ import {
   UsbStorageInterfaceEvent
 } from "../../ioInterface";
 import { LogController } from "../log";
-import { createWriteStream, WriteStream } from "fs";
+import { CpuTemp } from "../cpuTemp";
 
 export class UsbStorageRouter
   implements Router
@@ -26,7 +30,8 @@ export class UsbStorageRouter
 
   constructor(
     private readonly usbStorageInterface: UsbStorageInterface,
-    private readonly logController: LogController
+    private readonly logController: LogController,
+    private readonly cpuTemp: CpuTemp,
   ) {}
 
   public listen() {
@@ -40,7 +45,11 @@ export class UsbStorageRouter
     deviceName: DEVNAME,
     mountedDir: MountedDir
   ): Promise<void> {
-    // this.logger.log(`get event Mounted ${deviceName} ${mountedDir}`); // temp
+    if (await this.cpuTemp.isSafeTemp() == false) {
+      this.answerError(new Error('CPU Temp is too high'), deviceName, mountedDir);
+      return;
+    }
+
     
     const downloadDir = this.getDownloadDir(mountedDir);
 
