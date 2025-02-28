@@ -1,11 +1,11 @@
 import { EventEmitter } from "stream";
 import {
+  ErrorEventMap,
   IO,
   Level,
   Logger
 } from "../../../../common";
 import { Ar20 } from "./ar20";
-import * as X from "rxjs";
 
 /**
  * 상태를 보수적으로 판단한다. (Off 는 즉시 처리하고 On 은 일정 시간동안 기다리며 확실하면 처리한다.)  
@@ -28,21 +28,23 @@ import * as X from "rxjs";
  * 
  */
 export class ReceiverStatus
-  extends EventEmitter<ReceiverStatusEventMap>
+  extends EventEmitter<ReceiverStatusEventMap | ErrorEventMap>
   implements IO
 {
   private readonly logger = new Logger(ReceiverStatus.name);
+  private readonly timeForWaitingStatusOn = 1500;
 
   private status: Status | null = null;
-
-  private onWaitingTime = 1500;
-  private rejectWaitForOn: (() => void) | null = null;
-  private onTimer: NodeJS.Timeout | null = null;
+  private statusOnTimer: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly ar20: Ar20,
   ) {
     super();
+
+    this.on("error", (err) => {
+      this.logger.error('Emitted Event: "error"', err);
+    });
   }
 
   /**
@@ -66,15 +68,15 @@ export class ReceiverStatus
       if (
         level == Level.High && // Rising edge
         // 일반적으로 Falling edge 이후에 왔다면 아래 조건은 의미없음.
-        this.onTimer == null
+        this.statusOnTimer == null
       ) {
         this.waitForOn();
       } else if (
         level == Level.Low && // Falling edge
-        // 일반적으로 Rising edge 이후에 왔다면 아래 조건은 의미없음.
-        this.onTimer != null
+        // 일반적으로 Rising edge 이후에 왔다면 아래 조건은 의미없음. 하지만 예외가 관찰됨.
+        this.statusOnTimer != null
       ) {
-        this.turnOff();
+        this.fallHandler();
       }
     });
 
@@ -94,44 +96,41 @@ export class ReceiverStatus
 
     this.ar20.close();
 
-    this.turnOff(StatusEventCode.Close);
+    this.fallHandler(StatusEventCode.Close);
   }
 
   public isOn(): boolean {
     return this.status == Status.ON;
   }
 
-  /**
-   * 1s 간 무탈하다면,
-   * turn on this.status & call turnedOnHandler
-   */
   private waitForOn(code: StatusEventCode = StatusEventCode.Work) {
-    new Promise<void>((resolve, reject) => {
-      this.rejectWaitForOn = reject;
-      this.onTimer = setTimeout(() => {
-        resolve();
-      }, this.onWaitingTime);
-    }).then(() => {
-      this.status = Status.ON;
-      this.logStatus(code);
-      this.emit(Status.ON, code);
-    }).catch(X.noop);
+    this.statusOnTimer = setTimeout(
+      this.turnOn.bind(this, code),
+      this.timeForWaitingStatusOn
+    );
   }
 
-  /**
-   * rejectWaitForOn, clear onTimer
-   * turn off this.status
-   * call turnedOffHandler
-   */
-  private turnOff(code: StatusEventCode = StatusEventCode.Work) {
-    this.rejectWaitForOn && this.rejectWaitForOn();
-    this.onTimer && (clearTimeout(this.onTimer), this.onTimer = null);
+  private turnOn(code: StatusEventCode) {
+    this.status = Status.ON;
+    this.logStatus(code);
+    this.emit(Status.ON, code);
+  }
+
+  private fallHandler(code: StatusEventCode = StatusEventCode.Work) {
+    if (this.statusOnTimer != null) {
+      clearTimeout(this.statusOnTimer);
+      this.statusOnTimer = null;
+    }
 
     if (this.status != Status.OFF) {
-      this.status = Status.OFF;
-      this.logStatus(code);
-      this.emit(Status.OFF, code);
+      this.turnOff(code);
     }
+  }
+
+  private turnOff(code: StatusEventCode) {
+    this.status = Status.OFF;
+    this.logStatus(code);
+    this.emit(Status.OFF, code);
   }
 
   private logStatus(code: StatusEventCode) {

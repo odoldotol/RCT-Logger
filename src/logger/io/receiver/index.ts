@@ -69,8 +69,9 @@ export class Receiver
       this.pushData(this.getB103ExtractedData(data));
     });
 
-    this.status.on(Status.ON, this.onHandler.bind(this));
-    this.status.on(Status.OFF, this.offHandler.bind(this));
+    this.status
+    .on(Status.ON, this.onHandler.bind(this))
+    .on(Status.OFF, this.offHandler.bind(this));
 
     await this.openChild();
     this.status.open();
@@ -95,6 +96,10 @@ export class Receiver
     this.receiverInterface.pushData(buffer);
   }
 
+  /**
+   * 예외 발생 없어야함.
+   * 발생하면 uncaught 로 죽게 냅둬.
+   */
   private onHandler(code: StatusEventCode) {
     if (code == StatusEventCode.Work) {
       this.pushData(this.getAr20TurnedOnB103Data());
@@ -103,6 +108,10 @@ export class Receiver
     this.runChild();
   }
 
+  /**
+   * 예외 발생 없어야함.
+   * 발생하면 uncaught 로 죽게 냅둬.
+   */
   private offHandler(code: StatusEventCode) {
     if (code == StatusEventCode.Work) {
       this.pushData(this.getAr20TurnedOffB103Data());
