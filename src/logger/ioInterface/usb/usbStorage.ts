@@ -1,15 +1,25 @@
 import { EventEmitter } from "stream";
 import { KernelName } from "../../io/usb";
 import { MountPoint } from "../../io/usb/storage";
+import {
+  ErrorEventMap,
+  Logger
+} from "../../../common";
 
 /**
  * @todo 더 안전하게
  */
 export class UsbStorageInterface
-  extends EventEmitter<UsbStorageInterfaceEventMap>
+  extends EventEmitter<UsbStorageInterfaceEventMap | ErrorEventMap>
 {
+  private readonly logger = new Logger(UsbStorageInterface.name);
+
   constructor() {
     super();
+
+    this.on("error", (err) => {
+      this.logger.error('Emitted Event: "error"', err);
+    });
   }
 
 }

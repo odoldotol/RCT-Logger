@@ -13,13 +13,9 @@ import { UsbStorageContainer } from "./storage.container";
 const Udev = require("udev");
 
 /**
- * 하나의 USB 스토리지만 허용함.
+ * 제한적 구현: 하나의 USB 스토리지만 허용.
  * 
- * ### test
- * - 삽입, 마운트, 완료, 언마운트, 제거
- * - 삽입, 마운트, 에러, 언마운트, 제거
- * - 삽입, 삽입, 삽입, ... , 제거, 제거, 제거 (최초 하나만 처리)
- * - 삽입, 마운트, 제거, 언마운트, 에러
+ * @todo 코드 컴팩션
  */
 export class Usb
   implements IO
