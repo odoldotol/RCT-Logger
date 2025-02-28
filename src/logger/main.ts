@@ -28,10 +28,11 @@ async function bootstrap() {
 
   database.run();
   app.listen();
-  app.run();
   await io.open();
-
+  
   logger.log('Logger is working...');
+
+  app.run();
 
   function listenSignal() {
     process
@@ -62,8 +63,8 @@ async function bootstrap() {
   }
 
   function terminate(code: number) {
-    io.close();
     app.stop();
+    io.close();
     database.stop();
 
     process.exit(code);

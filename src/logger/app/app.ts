@@ -26,9 +26,11 @@ export class App
 
   public run() {
     this.cpuTemp.run();
+    // this.hearbeat.run();
   }
 
   public stop() {
+    // this.hearbeat.stop();
     this.cpuTemp.stop();
   }
 

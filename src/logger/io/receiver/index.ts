@@ -30,7 +30,7 @@ import {
 } from "./child";
 
 /**
- * @Todo 차일드의 헬스체크/복구/로깅
+ * @Todo 차일드 재시작
  */
 export class Receiver
   implements IO
@@ -239,13 +239,6 @@ export class Receiver
       console.error('stdout error:', err);
     });
   }
-
-  // private healthCheck() {}
-
-  // private restartChild() {
-  //   this.child.kill("SIGTERM"); // 안끝나면 강제 킬 해야함
-  //   this.startChild();
-  // }
 
   private startChild() {
     this.child = this.forkChild();
