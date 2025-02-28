@@ -26,12 +26,12 @@ const columnArr = [
   { key: 'timestamp', width: 14, header: 'Timestamp' },
 
   // TX
-  { key: "deviceAddress", width: 7, header: 'ID' },
-  { key: 'Ar20Onoff', width: 8, header: 'On/Off' },
+  { key: "deviceAddress", width: 8, header: 'ID' },
+  { key: 'ar20Onoff', width: 8, header: 'ON/Off' },
 
   // OP
-  { key: "opA", width: 6, header: 'A' },
-  { key: "opB", width: 6, header: 'B' },
+  { key: "opA", width: 6, header: 'EM2' },
+  { key: "opB", width: 6, header: 'OP_B' },
 
   { key: "startOn", width: 10, header: 'Start On' },
 
@@ -44,7 +44,7 @@ const columnArr = [
   { key: "aux4", width: 5, header: '4' },
 
   // trollyTravel 횡행 7행
-  { key: "trollyTravel", width: 7, header: '' },
+  { key: "trollyTravel", width: 8, header: 'NOTCH' },
   { key: "trollyTravel_F", width: 5, header: 'F' },
   { key: "trollyTravel_B", width: 5, header: 'B' },
   { key: "trollyTravel_1", width: 5, header: '1' },
@@ -53,7 +53,7 @@ const columnArr = [
   { key: "trollyTravel_4", width: 5, header: '4' },
 
   // bridgeTravel 주행 7행
-  { key: "bridgeTravel", width: 7, header: '' },
+  { key: "bridgeTravel", width: 8, header: 'NOTCH' },
   { key: "bridgeTravel_L", width: 5, header: 'L' },
   { key: "bridgeTravel_R", width: 5, header: 'R' },
   { key: "bridgeTravel_1", width: 5, header: '1' },
@@ -62,7 +62,7 @@ const columnArr = [
   { key: "bridgeTravel_4", width: 5, header: '4' },
 
   // mainHoist Main 7행
-  { key: "mainHoist", width: 7, header: '' },
+  { key: "mainHoist", width: 8, header: 'NOTCH' },
   { key: "mainHoist_U", width: 5, header: 'U' },
   { key: "mainHoist_D", width: 5, header: 'D' },
   { key: "mainHoist_1", width: 5, header: '1' },
@@ -71,7 +71,7 @@ const columnArr = [
   { key: "mainHoist_4", width: 5, header: '4' },
 
   // auxHoist Aux 7행
-  { key: "auxHoist", width: 7, header: '' },
+  { key: "auxHoist", width: 8, header: 'NOTCH' },
   { key: "auxHoist_U", width: 5, header: 'U' },
   { key: "auxHoist_D", width: 5, header: 'D' },
   { key: "auxHoist_1", width: 5, header: '1' },
@@ -80,31 +80,31 @@ const columnArr = [
   { key: "auxHoist_4", width: 5, header: '4' },
 
   // SP
-  { key: "sp1", width: 5, header: '1' },
-  { key: "sp2", width: 5, header: '2' },
-  { key: "sp3", width: 5, header: '3' },
-  { key: "sp4", width: 5, header: '4' },
-  { key: "sp5", width: 5, header: '5' },
-  { key: "sp6", width: 5, header: '6' },
-  { key: "sp7", width: 5, header: '7' },
-  { key: "sp8", width: 5, header: '8' },
-  { key: "sp9", width: 5, header: '9' },
-  { key: "sp10", width: 5, header: '10' },
-  { key: "sp11", width: 5, header: '11' },
-  { key: "sp12", width: 5, header: '12' },
+  { key: "sp1", width: 5, header: 'A1' },
+  { key: "sp2", width: 5, header: 'A2' },
+  { key: "sp3", width: 5, header: 'A3' },
+  { key: "sp4", width: 5, header: 'A4' },
+  { key: "sp5", width: 5, header: 'A5' },
+  { key: "sp6", width: 5, header: 'A6' },
+  { key: "sp7", width: 5, header: 'A7' },
+  { key: "sp8", width: 5, header: 'A8' },
+  { key: "sp9", width: 5, header: 'A9' },
+  { key: "sp10", width: 5, header: 'A10' },
+  { key: "sp11", width: 5, header: 'A11' },
+  { key: "sp12", width: 5, header: 'A12' },
 
-  { key: "sp13", width: 5, header: '13' },
-  { key: "sp14", width: 5, header: '14' },
-  { key: "sp15", width: 5, header: '15' },
-  { key: "sp16", width: 5, header: '16' },
-  { key: "sp17", width: 5, header: '17' },
-  { key: "sp18", width: 5, header: '18' },
-  { key: "sp19", width: 5, header: '19' },
-  { key: "sp20", width: 5, header: '20' },
-  { key: "sp21", width: 5, header: '21' },
-  { key: "sp22", width: 5, header: '22' },
-  { key: "sp23", width: 5, header: '23' },
-  { key: "sp24", width: 5, header: '24' },
+  { key: "sp13", width: 5, header: 'B1' },
+  { key: "sp14", width: 5, header: 'B2' },
+  { key: "sp15", width: 5, header: 'B3' },
+  { key: "sp16", width: 5, header: 'B4' },
+  { key: "sp17", width: 5, header: 'B5' },
+  { key: "sp18", width: 5, header: 'B6' },
+  { key: "sp19", width: 5, header: 'B7' },
+  { key: "sp20", width: 5, header: 'B8' },
+  { key: "sp21", width: 5, header: 'B9' },
+  { key: "sp22", width: 5, header: 'B10' },
+  { key: "sp23", width: 5, header: 'B11' },
+  { key: "sp24", width: 5, header: 'B12' },
 
   { key: "MCAData", width: 12, header: 'MCA Data' },
 ];
@@ -120,31 +120,36 @@ sheet1.getRow(1).commit();
 sheet1.getCell('A2').value = segmentName;
 
 sheet1.mergeCells('B2:C2');
-sheet1.getCell('B2').value = 'TX';
+sheet1.getCell('B2').value = 'TRANSMITTER';
 
-sheet1.mergeCells('D2:E2');
-sheet1.getCell('D2').value = 'OP';
+sheet1.mergeCells('D2:H2');
+sheet1.getCell('D2').value = 'POWER';
 
-sheet1.getCell('F2').value = '';
-
-sheet1.mergeCells('G2:H2'); // siren, light
 sheet1.mergeCells('I2:L2'); // aux1-4
-sheet1.getCell('I2').value = 'Aux';
+sheet1.getCell('I2').value = 'AUX';
 
 sheet1.mergeCells('M2:S2');
-sheet1.getCell('M2').value = 'Trolly Travel';
+const trollyTravelHead = sheet1.getCell('M2');
+trollyTravelHead.value = 'TRAVERSING';
+trollyTravelHead.note = '횡행 (Trolly Travel)';
 
 sheet1.mergeCells('T2:Z2');
-sheet1.getCell('T2').value = 'Bridge Travel';
+const bridgeTravelHead = sheet1.getCell('T2');
+bridgeTravelHead.value = 'TRAVELLING';
+bridgeTravelHead.note = '주행 (Bridge Travel)';
 
 sheet1.mergeCells('AA2:AG2');
-sheet1.getCell('AA2').value = 'Main Hoist';
+const mainHoistHead = sheet1.getCell('AA2');
+mainHoistHead.value = 'MAIN HOIST';
+mainHoistHead.note = '주권';
 
 sheet1.mergeCells('AH2:AN2');
-sheet1.getCell('AH2').value = 'Aux Hoist';
+const auxHoistHead = sheet1.getCell('AH2');
+auxHoistHead.value = 'AUX HOIST';
+auxHoistHead.note = '보권';
 
 sheet1.mergeCells('AO2:BL2');
-sheet1.getCell('AO2').value = 'SP';
+sheet1.getCell('AO2').value = 'OPTION';
 
 sheet1.getCell('BM2').value = '';
 
@@ -153,6 +158,10 @@ sheet1.addRow(columnArr.map(column => column.header));
 sheet1.getCell('A3').note = 'TT:MM:SS';
 sheet1.getCell('B3').note = '송신기 ID (10진수)';
 sheet1.getCell('C3').note = '송신기 On/Off 신호';
+sheet1.getCell('D3').note = '비상 정지(emergency stop) 2';
+sheet1.getCell('F3').note = '조작 전원';
+sheet1.getCell('G3').note = '경보';
+sheet1.getCell('H3').note = '조명';
 
 sheet1.eachRow(row => {
   row.eachCell(cell => {
@@ -196,17 +205,6 @@ sheet1.eachRow(row => {
 });
 
 sheet1.getRow(3).commit();
-
-sheet1.addRow({
-  timestamp: '10:56:34',
-  Ar20Onoff: 'ON',
-});
-
-sheet1.addRow({
-  timestamp: '10:56:35',
-  deviceAddress: '1',
-  startOn: 'ON',
-});
 
 sheet1.commit();
 
