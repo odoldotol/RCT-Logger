@@ -40,4 +40,4 @@ export const enum UsbStorageInterfaceEvent {
 
 export type DEVNAME = `/dev/${KernelName}`;
 
-export type MountedDir = `${MountPoint}${string}`;
+export type MountedDir = `${MountPoint}`;

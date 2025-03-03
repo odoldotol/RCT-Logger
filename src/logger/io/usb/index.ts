@@ -15,7 +15,7 @@ const Udev = require("udev");
 /**
  * 제한적 구현: 하나의 USB 스토리지만 허용.
  * 
- * @todo 코드 컴팩션
+ * @todo 코드 컴팩션, 다수의 USBStorage 를 허용하려한 초기 디자인 자체가 문제. 디자인 자채를 다시 해야함.
  */
 export class Usb
   implements IO
@@ -42,66 +42,88 @@ export class Usb
   }
 
   private listenUdev() {
-    this.blockMonitor.on(ACTION.Add, (event: UdevBlockEvent<ACTION.Add>) => {
+    this.blockMonitor.on(ACTION.Add, (
+      event: UdevBlockEvent<ACTION.Add>
+    ) => {
+      this.logger.log(`Udev(Add): ${event.DEVNAME}`);
+
       if (
-        this.isUsbPartitionEvent(event) &&
-        this.usbStorageContainer.size == 0 // 더 정확히, '마운트된 스토리지(MountedDir != null)가 없으면' 으로 치환 가능.
+        this.isUsbPartitionEvent(event) == false ||
+        this.usbStorageContainer.size != 0 // 더 정확히, '마운트된 스토리지(MountedDir != null)가 없으면' 으로 치환 가능.
       ) {
-        this.usbStorageContainer.add(event)
-        .then(usbStorage => {
-          const mountedDir = usbStorage.getMountedDir();
-
-          if (mountedDir == null) {
-            throw new Error(`Add Error: MountedDir is null: ${usbStorage.deviceName}`);
-          }
-
-          this.logger.log(`Udev[Add]: Added and Mounted ${usbStorage.deviceName} ${mountedDir}`);
-          this.greenLedInterface.blink(500);
-
-          this.usbStorageInterface.emit(
-            UsbStorageInterfaceEvent.Mounted,
-            usbStorage.deviceName,
-            mountedDir
-          );
-        })
-        .catch(e => {
-          this.logger.error(`Failed to Add`, e);
-          this.greenLedInterface.off();
-          this.redLedInterface.on();
-        });
+        return;
       }
+
+      this.usbStorageContainer.add(event)
+      .then(usbStorage => {
+        const mountedDir = usbStorage.getMountedDir();
+
+        if (mountedDir == null) {
+          throw new Error(`Add Error: MountedDir is null: ${usbStorage.deviceName}`);
+        }
+
+        this.logger.log(`Added and Mounted ${usbStorage.deviceName} ${mountedDir}`);
+        this.greenLedInterface.blink(500);
+
+        this.usbStorageInterface.emit(
+          UsbStorageInterfaceEvent.Mounted,
+          usbStorage.deviceName,
+          mountedDir
+        );
+      })
+      .catch(e => {
+        this.logger.error(`Failed to Add ${event.DEVNAME}`, e);
+        this.greenLedInterface.off();
+        this.redLedInterface.on();
+      });
     });
 
-    this.blockMonitor.on(ACTION.Remove, (event: UdevBlockEvent<ACTION.Remove>) => {
-      if (this.isUsbPartitionEvent(event)) {
+    this.blockMonitor.on(ACTION.Remove, (
+      event: UdevBlockEvent<ACTION.Remove>
+    ) => {
+      this.logger.log(`Udev(Remove): ${event.DEVNAME}`);
 
-        const usbStorage = this.usbStorageContainer.find(event);
+      if (this.isUsbPartitionEvent(event) == false) {
+        return;
+      }
 
-        if (usbStorage == null) {
-          this.logger.warn(`Can Not Remove Device. No UsbStorage in Container: ${event.DEVNAME}`);
-          return;
-        }
+      const usbStorage = this.usbStorageContainer.find(event);
 
-        const mountedDir = usbStorage.getMountedDir();
-        if (mountedDir != null) {
-          this.usbStorageContainer.umount(usbStorage)
-          .then(() => {
-            this.logger.warn(`Udev[Remove] Umounted ${usbStorage.deviceName}`);
-            this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
-          })
-          .catch(e => {
-            this.logger.error(`Failed to Umount on Remove`, e);
-          });
-        }
-
-        this.usbStorageContainer.remove(event);
-
-        this.logger.log(`Udev[Remove] Removed ${usbStorage.deviceName}`);
-
+      const led = () => {
         if (this.usbStorageContainer.size == 0) {
           this.greenLedInterface.off();
           this.redLedInterface.off();
         }
+      };
+
+      if (usbStorage == null) {
+        this.logger.warn(`Can Not Remove Device. No UsbStorage in Container: ${event.DEVNAME}`);
+        led();
+        return;
+      }
+
+      const remove = () => {
+        this.usbStorageContainer.remove(event);
+        led();
+      };
+
+      const mountedDir = usbStorage.getMountedDir();
+      if (mountedDir != null) { // 비정상 제거
+        setTimeout(() => {
+          this.usbStorageContainer.umount(usbStorage)
+          .then(() => {
+            this.logger.warn(`Removed and Umounted ${usbStorage.deviceName}`);
+            this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
+          })
+          .catch(e => {
+            this.logger.error(`Failed to Umount on Remove ${mountedDir}`, e);
+          })
+          .finally(() => {
+            remove();
+          });
+        }, 3000);
+      } else {
+        remove();
       }
     });
   }
@@ -122,34 +144,38 @@ export class Usb
           this.redLedInterface.on();
         });
       } else {
-        this.logger.error(`Complete, ButNo UsbStorage in Container: ${deviceName}`);
+        this.logger.error(`Complete, But No UsbStorage in Container: ${deviceName}`);
         this.greenLedInterface.on();
         this.redLedInterface.on();
       }
     });
 
-    this.usbStorageInterface.on(UsbStorageInterfaceEvent.Error, (deviceName: DEVNAME) => {
+    this.usbStorageInterface.on(UsbStorageInterfaceEvent.Error, async (
+      deviceName: DEVNAME,
+      _mountedDir: unknown,
+      error: any
+    ) => {
+      // Todo: 가능하다면 txt 쓰기
+      this.logger.error(`Error: ${deviceName}`, error);
+
       if (this.usbStorageContainer.has(deviceName)) {
-        this.usbStorageContainer.umount(deviceName)
+        await this.usbStorageContainer.umount(deviceName)
         .then((usbStorage) => {
           this.logger.log(`Error and Umounted: ${usbStorage.deviceName}`);
           this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
         })
         .catch(e => {
           this.logger.error(`Error, But Failed to Umount: ${deviceName}`, e);
-        })
-        .finally(() => {
-          this.greenLedInterface.off();
-          this.redLedInterface.on();
         });
       } else {
-        this.logger.warn(`Error, No UsbStorage in Container: ${deviceName}`);
-        this.greenLedInterface.off();
-        if (this.usbStorageContainer.size == 0) {
-          this.redLedInterface.off();
-        } else {
-          this.redLedInterface.on();
-        }
+        this.logger.warn(`Error, But No UsbStorage in Container: ${deviceName}`);
+      }
+
+      this.greenLedInterface.off();
+      if (this.usbStorageContainer.size == 0) {
+        this.redLedInterface.off();
+      } else {
+        this.redLedInterface.on();
       }
     });
   }

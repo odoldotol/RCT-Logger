@@ -121,7 +121,14 @@ export class UsbStorageContainer {
         stderr
       ) => {
         if (err) {
-          return reject(err);
+          if (
+            err.message.includes("not mounted.") ||
+            err.message.includes("no mount point specified.")
+          ) {
+            return resolve();
+          } else {
+            return reject(err);
+          }
         }
 
         if (stderr) {
@@ -135,9 +142,8 @@ export class UsbStorageContainer {
         }
       });
     }).then(() => {
-      return usbStorage.removeMountedDir();
-    }).finally(() => {
       this.removeMountPoint(mountedDir);
+      return usbStorage.removeMountedDir();
     });
   }
 
@@ -179,8 +185,14 @@ export class UsbStorageContainer {
     return mkdir(usbStorage.mountPoint, { recursive: true }).then(() => usbStorage.mountPoint);
   }
 
-  private removeMountPoint(mountPoint: MountPoint | MountedDir): Promise<void> {
-    return rmdir(mountPoint).catch(err => this.logger.warn(err));
+  private removeMountPoint(mountedDir: MountedDir): Promise<void> {
+    return rmdir(mountedDir).catch(err => {
+      if (err.message.includes("ENOENT: no such file or directory")) {
+        return;
+      } else {
+        this.logger.warn(err);
+      }
+    });
   }
 
 }
