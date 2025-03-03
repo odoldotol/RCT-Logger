@@ -34,8 +34,8 @@ class IOFactoryStatic {
     const usb = new Usb(
       usbStorageContainer,
       ioInterface.usbStorage,
-      ioInterface.ledContainer.get(LedGpioName.DownloadGreen),
-      ioInterface.ledContainer.get(LedGpioName.DownloadYellow),
+      ioInterface.ledContainer.get(LedGpioName.Green),
+      ioInterface.ledContainer.get(LedGpioName.Red),
     );
 
     const ledMap = new Map<LedGpioName, Led>();

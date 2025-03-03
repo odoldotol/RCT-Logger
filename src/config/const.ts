@@ -25,9 +25,9 @@ export const enum EnvKey {
 }
 
 export const enum LedGpioName {
-  DownloadGreen,
-  DownloadYellow,
-  DatabaseAppend,
+  Green,
+  Red,
+  Blue,
   Test,
 }
 

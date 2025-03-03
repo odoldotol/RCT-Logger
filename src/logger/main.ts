@@ -14,7 +14,7 @@ async function bootstrap() {
   
   const database = new Byte19LogDatabase(
     Config.databaseConfig,
-    ioInterface.ledContainer.get(LedGpioName.DatabaseAppend)
+    ioInterface.ledContainer.get(LedGpioName.Blue)
   );
 
   const io = IOFactory.create(ioInterface);

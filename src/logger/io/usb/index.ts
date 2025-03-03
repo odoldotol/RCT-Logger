@@ -27,8 +27,8 @@ export class Usb
   constructor(
     private readonly usbStorageContainer: UsbStorageContainer,
     private readonly usbStorageInterface: UsbStorageInterface,
-    private readonly downloadGreenLedInterface: LedInterface,
-    private readonly downloadYellowLedInterface: LedInterface,
+    private readonly greenLedInterface: LedInterface,
+    private readonly redLedInterface: LedInterface,
   ) {}
 
   public open() {
@@ -56,7 +56,7 @@ export class Usb
           }
 
           this.logger.log(`Udev[Add]: Added and Mounted ${usbStorage.deviceName} ${mountedDir}`);
-          this.downloadGreenLedInterface.blink(500);
+          this.greenLedInterface.blink(500);
 
           this.usbStorageInterface.emit(
             UsbStorageInterfaceEvent.Mounted,
@@ -66,8 +66,8 @@ export class Usb
         })
         .catch(e => {
           this.logger.error(`Failed to Add`, e);
-          this.downloadGreenLedInterface.off();
-          this.downloadYellowLedInterface.on();
+          this.greenLedInterface.off();
+          this.redLedInterface.on();
         });
       }
     });
@@ -99,8 +99,8 @@ export class Usb
         this.logger.log(`Udev[Remove] Removed ${usbStorage.deviceName}`);
 
         if (this.usbStorageContainer.size == 0) {
-          this.downloadGreenLedInterface.off();
-          this.downloadYellowLedInterface.off();
+          this.greenLedInterface.off();
+          this.redLedInterface.off();
         }
       }
     });
@@ -113,18 +113,18 @@ export class Usb
         .then((usbStorage) => {
           this.logger.log(`Complete and Umounted: ${usbStorage.deviceName}`);
           this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
-          this.downloadGreenLedInterface.on();
-          this.downloadYellowLedInterface.off();
+          this.greenLedInterface.on();
+          this.redLedInterface.off();
         })
         .catch(e => {
           this.logger.error(`Complete, But Failed to Umount: ${deviceName}`, e);
-          this.downloadGreenLedInterface.on();
-          this.downloadYellowLedInterface.on();
+          this.greenLedInterface.on();
+          this.redLedInterface.on();
         });
       } else {
         this.logger.error(`Complete, ButNo UsbStorage in Container: ${deviceName}`);
-        this.downloadGreenLedInterface.on();
-        this.downloadYellowLedInterface.on();
+        this.greenLedInterface.on();
+        this.redLedInterface.on();
       }
     });
 
@@ -139,16 +139,16 @@ export class Usb
           this.logger.error(`Error, But Failed to Umount: ${deviceName}`, e);
         })
         .finally(() => {
-          this.downloadGreenLedInterface.off();
-          this.downloadYellowLedInterface.on();
+          this.greenLedInterface.off();
+          this.redLedInterface.on();
         });
       } else {
         this.logger.warn(`Error, No UsbStorage in Container: ${deviceName}`);
-        this.downloadGreenLedInterface.off();
+        this.greenLedInterface.off();
         if (this.usbStorageContainer.size == 0) {
-          this.downloadYellowLedInterface.off();
+          this.redLedInterface.off();
         } else {
-          this.downloadYellowLedInterface.on();
+          this.redLedInterface.on();
         }
       }
     });

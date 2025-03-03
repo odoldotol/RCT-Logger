@@ -65,7 +65,7 @@ class AppFactoryStatic {
 
     const heartbeat = new Heartbeat(
       Config.heartbeatConfigService.getHeartbeat(HeartbeatName.APP),
-      ioInterface.ledContainer.get(LedGpioName.Test),
+      ioInterface.ledContainer.get(LedGpioName.Blue),
     );
 
     return new App(

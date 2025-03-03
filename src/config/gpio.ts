@@ -55,9 +55,9 @@ export class GpioConfigService
     ).setDebounceTimeout(SERIAL_CLK_DEBOUNCE))
 
     this.ledGpioMap
-    .set(LedGpioName.DownloadGreen, this.createLedGpioConfig(LED_A_PIN))
-    .set(LedGpioName.DownloadYellow, this.createLedGpioConfig(LED_B_PIN))
-    .set(LedGpioName.DatabaseAppend, this.createLedGpioConfig(LED_C_PIN))
+    .set(LedGpioName.Green, this.createLedGpioConfig(LED_A_PIN))
+    .set(LedGpioName.Red, this.createLedGpioConfig(LED_B_PIN))
+    .set(LedGpioName.Blue, this.createLedGpioConfig(LED_C_PIN))
     .set(LedGpioName.Test, this.createLedGpioConfig(LED_D_PIN));
 
   }
