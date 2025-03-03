@@ -51,9 +51,9 @@ export class UsbStorageContainer {
   }
 
   /**
-   * mount, container에 추가
+   * container에 추가
    */
-  public async add(udevAddBlockEvent: UdevBlockEvent<ACTION.Add>): Promise<UsbStorage> {
+  public add(udevAddBlockEvent: UdevBlockEvent<ACTION.Add>): UsbStorage {
     const usbStorage = new UsbStorage(udevAddBlockEvent);
 
     if (this.has(usbStorage)) {
@@ -61,8 +61,6 @@ export class UsbStorageContainer {
     }
 
     this.container.set(usbStorage.deviceName, usbStorage);
-
-    await this.mount(usbStorage);
 
     return usbStorage;
   }
@@ -85,6 +83,40 @@ export class UsbStorageContainer {
 
   public find(udevAddBlockEvent: UdevBlockEvent): UsbStorage | null {
     return this.container.get(udevAddBlockEvent.DEVNAME) ?? null;
+  }
+
+  /**
+   * @todo 이미 사용중이라서 실패시 별칭으로 mountPoint 만들어서 마운트하기?
+   */
+  public async mount(usbStorage: UsbStorage): Promise<MountedDir> {
+    const mountPoint = await this.createMountPoint(usbStorage);
+
+    return new Promise<MountedDir>((resolve, reject) => {
+      exec(`mount ${usbStorage.deviceName} ${mountPoint}`, (
+        err,
+        stdout,
+        stderr
+      ) => {
+        if (err) {
+          return reject(err);
+        }
+
+        if (stderr) {
+          return reject(stderr);
+        }
+
+        if (stdout == "") {
+          return resolve(mountPoint);
+        } else {
+          return reject(stdout);
+        }
+      });
+    }).then((mountedDir) => {
+      return usbStorage.setMountedDir(mountedDir);
+    }).catch(async (err) => {
+      await this.removeMountPoint(mountPoint);
+      throw err;
+    });
   }
   
   public async umount(deviceName: DEVNAME): Promise<UsbStorage>;
@@ -144,40 +176,6 @@ export class UsbStorageContainer {
     }).then(() => {
       this.removeMountPoint(mountedDir);
       return usbStorage.removeMountedDir();
-    });
-  }
-
-  /**
-   * @todo 이미 사용중이라서 실패시 별칭으로 mountPoint 만들어서 마운트하기?
-   */
-  private async mount(usbStorage: UsbStorage): Promise<MountedDir> {
-    const mountPoint = await this.createMountPoint(usbStorage);
-
-    return new Promise<MountedDir>((resolve, reject) => {
-      exec(`mount ${usbStorage.deviceName} ${mountPoint}`, (
-        err,
-        stdout,
-        stderr
-      ) => {
-        if (err) {
-          return reject(err);
-        }
-
-        if (stderr) {
-          return reject(stderr);
-        }
-
-        if (stdout == "") {
-          return resolve(mountPoint);
-        } else {
-          return reject(stdout);
-        }
-      });
-    }).then((mountedDir) => {
-      return usbStorage.setMountedDir(mountedDir);
-    }).catch(async (err) => {
-      await this.removeMountPoint(mountPoint);
-      throw err;
     });
   }
 

@@ -45,8 +45,6 @@ export class Usb
     this.blockMonitor.on(ACTION.Add, (
       event: UdevBlockEvent<ACTION.Add>
     ) => {
-      this.logger.log(`Udev(Add): ${event.DEVNAME}`);
-
       if (
         this.isUsbPartitionEvent(event) == false ||
         this.usbStorageContainer.size != 0 // 더 정확히, '마운트된 스토리지(MountedDir != null)가 없으면' 으로 치환 가능.
@@ -54,15 +52,12 @@ export class Usb
         return;
       }
 
-      this.usbStorageContainer.add(event)
-      .then(usbStorage => {
-        const mountedDir = usbStorage.getMountedDir();
+      this.logger.log(`Udev(Add): ${event.DEVNAME}`);
 
-        if (mountedDir == null) {
-          throw new Error(`Add Error: MountedDir is null: ${usbStorage.deviceName}`);
-        }
+      const usbStorage = this.usbStorageContainer.add(event);
 
-        this.logger.log(`Added and Mounted ${usbStorage.deviceName} ${mountedDir}`);
+      this.usbStorageContainer.mount(usbStorage)
+      .then(mountedDir => {
         this.greenLedInterface.blink(500);
 
         this.usbStorageInterface.emit(
@@ -72,7 +67,7 @@ export class Usb
         );
       })
       .catch(e => {
-        this.logger.error(`Failed to Add ${event.DEVNAME}`, e);
+        this.logger.error(`Failed to Mount on Add ${event.DEVNAME}`, e);
         this.greenLedInterface.off();
         this.redLedInterface.on();
       });
@@ -80,12 +75,12 @@ export class Usb
 
     this.blockMonitor.on(ACTION.Remove, (
       event: UdevBlockEvent<ACTION.Remove>
-    ) => {
-      this.logger.log(`Udev(Remove): ${event.DEVNAME}`);
-
+    ) => {      
       if (this.isUsbPartitionEvent(event) == false) {
         return;
       }
+
+      this.logger.log(`Udev(Remove): ${event.DEVNAME}`);
 
       const usbStorage = this.usbStorageContainer.find(event);
 
@@ -111,10 +106,6 @@ export class Usb
       if (mountedDir != null) { // 비정상 제거
         setTimeout(() => {
           this.usbStorageContainer.umount(usbStorage)
-          .then(() => {
-            this.logger.warn(`Removed and Umounted ${usbStorage.deviceName}`);
-            this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
-          })
           .catch(e => {
             this.logger.error(`Failed to Umount on Remove ${mountedDir}`, e);
           })
@@ -132,9 +123,7 @@ export class Usb
     this.usbStorageInterface.on(UsbStorageInterfaceEvent.Complete, (deviceName: DEVNAME) => {
       if (this.usbStorageContainer.has(deviceName)) {
         this.usbStorageContainer.umount(deviceName)
-        .then((usbStorage) => {
-          this.logger.log(`Complete and Umounted: ${usbStorage.deviceName}`);
-          this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
+        .then((_usbStorage) => {
           this.greenLedInterface.on();
           this.redLedInterface.off();
         })
@@ -160,10 +149,6 @@ export class Usb
 
       if (this.usbStorageContainer.has(deviceName)) {
         await this.usbStorageContainer.umount(deviceName)
-        .then((usbStorage) => {
-          this.logger.log(`Error and Umounted: ${usbStorage.deviceName}`);
-          this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Umounted, usbStorage.deviceName);
-        })
         .catch(e => {
           this.logger.error(`Error, But Failed to Umount: ${deviceName}`, e);
         });

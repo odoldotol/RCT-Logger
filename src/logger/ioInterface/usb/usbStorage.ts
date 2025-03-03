@@ -26,14 +26,12 @@ export class UsbStorageInterface
 
 export type UsbStorageInterfaceEventMap = {
   [UsbStorageInterfaceEvent.Mounted]: [DEVNAME, MountedDir];
-  [UsbStorageInterfaceEvent.Umounted]: [DEVNAME];
   [UsbStorageInterfaceEvent.Complete]: [DEVNAME, MountedDir];
   [UsbStorageInterfaceEvent.Error]: [DEVNAME, MountedDir, any];
 };
 
 export const enum UsbStorageInterfaceEvent {
   Mounted,
-  Umounted,
   Complete,
   Error,
 }

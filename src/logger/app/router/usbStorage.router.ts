@@ -36,7 +36,6 @@ export class UsbStorageRouter
 
   public listen() {
     this.usbStorageInterface.on(UsbStorageInterfaceEvent.Mounted, this.mountedHandler.bind(this));
-    this.usbStorageInterface.on(UsbStorageInterfaceEvent.Umounted, this.umountedHandler.bind(this));
 
     this.logger.log("Listening.");
   }
@@ -80,12 +79,6 @@ export class UsbStorageRouter
         this.logger.error(`Failed to Download`, error);
       }
     }
-  }
-
-  private async umountedHandler(
-    deviceName: DEVNAME
-  ): Promise<void> {
-    this.logger.log(`get event Umounted ${deviceName}`); // temp
   }
 
   private answerComplete(
