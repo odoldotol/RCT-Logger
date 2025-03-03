@@ -151,7 +151,7 @@ export class Receiver
     this.child.on('spawn', () => {
       this.logger.log(`Child spawned, PID: ${this.child.pid}`);
 
-      exec(`chrt -f -p 99 ${this.child.pid}`, (error, stdout, stderr) => {
+      exec(`chrt -r -p 1 ${this.child.pid}`, (error, stdout, stderr) => {
         if (error) {
           console.error(`chrt error: ${error.message}`);
           return;

@@ -1,5 +1,0 @@
-# /etc/udev/rules.d/99-usb-mount.rules
-
-ACTION=="add", SUBSYSTEM=="block", ENV{ID_BUS}=="usb", ENV{DEVTYPE}=="partition", RUN+="/usr/local/bin/mount_usb.sh %k"
-
-ACTION=="remove", SUBSYSTEM=="block", ENV{ID_BUS}=="usb", ENV{DEVTYPE}=="partition", RUN+="/usr/local/bin/umount_usb.sh %k"
