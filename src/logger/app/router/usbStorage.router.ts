@@ -74,7 +74,11 @@ export class UsbStorageRouter
         rangeQuery
       );
     } catch (error: any) {
-      writeStream.destroy(error);
+      if (writeStream.destroyed == false) {
+        writeStream.destroy(error);
+      } else {
+        this.logger.error(`Failed to Download`, error);
+      }
     }
   }
 
@@ -96,9 +100,7 @@ export class UsbStorageRouter
     deviceName: DEVNAME,
     mountedDir: MountedDir
   ) {
-    this.logger.error(`Failed to Download`, error);
-    // 가능하다면 txt 쓰기
-    this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Error, deviceName, mountedDir);
+    this.usbStorageInterface.emit(UsbStorageInterfaceEvent.Error, deviceName, mountedDir, error);
   }
 
   private async getWriteStream(

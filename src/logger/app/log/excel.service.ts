@@ -57,7 +57,7 @@ export class LogExcelService {
     for (const segment of segmentArr) {
       const sheet = this.createSheet(streamWorkbook, segment.name);
 
-      await this.writeSegmnetOnSheet(segment, sheet);
+      await this.writeSegmnetOnSheet(segment, sheet, writeStream);
 
       sheet.commit();
     }
@@ -68,6 +68,7 @@ export class LogExcelService {
   private writeSegmnetOnSheet(
     segment: Segment,
     sheet: ExcelJS.Worksheet,
+    writeStream: WriteStream,
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => { 
 
@@ -84,6 +85,9 @@ export class LogExcelService {
           });
 
           try {
+            if (writeStream.writable == false) {
+              throw new Error(`WriteStream(${writeStream.path}) is not writable.`);
+            }
             sheet.lastRow?.commit();
           } catch (error) {
             subscription.unsubscribe();
