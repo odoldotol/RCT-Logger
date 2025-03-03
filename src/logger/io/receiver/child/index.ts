@@ -1,5 +1,6 @@
 import { Serializable } from "node:child_process";
 import { ReceiverData } from "../data";
+import { Heartbeat } from "../../../app/heartbeat";
 
 /**
  * @todo ipc, std 스태틱 매서드에서 제거
@@ -34,7 +35,8 @@ export class Child {
   }
 
   constructor(
-    private readonly data: ReceiverData
+    private readonly data: ReceiverData,
+    private readonly heartbeat: Heartbeat,
   ) {}
 
   public activate() {
@@ -60,10 +62,10 @@ export class Child {
         case ChildSignal.Open:
           this.data.open();
           this.ipc({ signal: ChildSignal.Open });
-          // this.heartbeat.run();
+          this.heartbeat.run();
           break;
         case ChildSignal.Close:
-          // this.heartbeat.stop();
+          this.heartbeat.stop();
           this.data.close();
           break;
         case ChildSignal.Run:

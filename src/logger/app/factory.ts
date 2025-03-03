@@ -15,6 +15,11 @@ import { LogRepository } from "../database";
 import { CpuTemp } from "./cpuTemp";
 import { Config } from "../../config/init";
 import { LogExcelService } from "./log/excel.service";
+import { Heartbeat } from "./heartbeat";
+import {
+  HeartbeatName,
+  LedGpioName
+} from "../../config";
 
 class AppFactoryStatic {
 
@@ -58,9 +63,15 @@ class AppFactoryStatic {
       usbStorageRouter,
     );
 
+    const heartbeat = new Heartbeat(
+      Config.heartbeatConfigService.getHeartbeat(HeartbeatName.APP),
+      ioInterface.ledContainer.get(LedGpioName.Test),
+    );
+
     return new App(
       router,
-      cpuTemp
+      cpuTemp,
+      heartbeat,
     );
   }
 

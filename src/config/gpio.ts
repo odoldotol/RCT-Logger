@@ -21,12 +21,12 @@ export class GpioConfigService
     private readonly config: Config
   ) {
     const AR20_PIN = this.getPin(EnvKey.AR20_PIN);
-    const AR20_DEBOUNCE = this.getInt(EnvKey.AR20_DEBOUNCE);
+    const AR20_DEBOUNCE = this.config.getInt(EnvKey.AR20_DEBOUNCE);
 
     const SERIAL_PIN = this.getPin(EnvKey.SERIAL_PIN);
 
     const SERIAL_CLK_PIN = this.getPin(EnvKey.SERIAL_CLK_PIN);
-    const SERIAL_CLK_DEBOUNCE = this.getInt(EnvKey.SERIAL_CLK_DEBOUNCE);
+    const SERIAL_CLK_DEBOUNCE = this.config.getInt(EnvKey.SERIAL_CLK_DEBOUNCE);
 
     const LED_A_PIN = this.getPin(EnvKey.LED_A_PIN);
 
@@ -78,7 +78,7 @@ export class GpioConfigService
    * @returns valid pin number
    */
   private getPin(pinEnvKey: EnvKey): number {
-    const PIN = this.getInt(pinEnvKey);
+    const PIN = this.config.getInt(pinEnvKey);
 
     if (this.pinSet.has(PIN)) {
       // 중복된 핀
@@ -88,16 +88,6 @@ export class GpioConfigService
     this.pinSet.add(PIN);
 
     return PIN;
-  }
-
-  private getInt(envKey: EnvKey): number {
-    const int = parseInt(this.config.get(envKey) ?? "");
-    
-    if (Number.isSafeInteger(int) == false) {
-      throw new Error(`enviroment variable ${envKey} is not available.`);
-    }
-
-    return int;
   }
 
   private createLedGpioConfig(pin: number): GpioConfig {

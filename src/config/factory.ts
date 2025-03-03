@@ -1,6 +1,7 @@
 import { Config } from "./config";
 import { DatabaseConfig } from "./database";
 import { GpioConfigService } from "./gpio";
+import { HeartbeatConfigService } from "./heartbeat";
 import { LoggerConfig } from "./logger";
 
 class ConfigFactoryStatic {
@@ -11,11 +12,13 @@ class ConfigFactoryStatic {
     const loggerConfig = new LoggerConfig(config);
     const gpioConfigService = new GpioConfigService(config);
     const databaseConfig = new DatabaseConfig(config);
+    const heartbeatConfigService = new HeartbeatConfigService(config);
 
     return {
       loggerConfig,
       gpioConfigService,
       databaseConfig,
+      heartbeatConfigService,
     };
   }
 

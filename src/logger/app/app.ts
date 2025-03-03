@@ -5,6 +5,7 @@ import {
   Runner
 } from "../../common";
 import { CpuTemp } from "./cpuTemp";
+import { Heartbeat } from "./heartbeat";
 
 export class App
   implements RouterI, Runner
@@ -14,6 +15,7 @@ export class App
   constructor(
     private readonly router: Router,
     private readonly cpuTemp: CpuTemp,
+    private readonly heartbeat: Heartbeat,
   ) {
     this.logger.log('Initialized.');
   }
@@ -26,11 +28,11 @@ export class App
 
   public run() {
     this.cpuTemp.run();
-    // this.hearbeat.run();
+    this.heartbeat.run();
   }
 
   public stop() {
-    // this.hearbeat.stop();
+    this.heartbeat.stop();
     this.cpuTemp.stop();
   }
 
