@@ -20,6 +20,9 @@ import { Readable } from 'stream';
 import * as Path from 'path';
 import { LedInterface } from '../logger/ioInterface';
 
+/**
+ * @todo writable stream 적용
+ */
 export class Byte19LogDatabase
   implements Runner
 {

@@ -28,6 +28,9 @@ export class LogRepository {
     return segmentNameArr.map(segmentName => this.getSegment(segmentName));
   }
 
+  /**
+   * @todo non-following mode
+   */
   public getSegment(segmentName: string): Segment {
     const dataObx = new Observable<B103ExtractedData[]>(subscriber => {
       this.database.readSegment(segmentName)

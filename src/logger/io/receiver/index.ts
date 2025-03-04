@@ -115,7 +115,9 @@ export class Receiver
       throw new Error("Child stdout is null.");
     }
 
-    this.child.stdout.pipe(this.rctProtocol)
+    // Todo - Refac: Non-following mode, PassThrough/Transform 스트림 등을 pipeline 으로 채이닝
+    this.child.stdout
+    .pipe(this.rctProtocol)
     .on('data', (data: B192DataWord6) => {
       this.testLedInterface.blinkOnce();
       this.pushData(this.getB103ExtractedData(data));
