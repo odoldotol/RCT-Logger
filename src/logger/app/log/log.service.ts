@@ -7,6 +7,7 @@ import { LogFactory } from "./log.factory";
 import { LoggerConfig } from "../../../config/logger";
 import { LogExcelService } from "./excel.service";
 import { Subject } from "rxjs";
+import { writeFile } from "fs/promises";
 import * as X from "rxjs/operators";
 
 
@@ -25,14 +26,18 @@ export class LogService {
     if (this.loggerConfig.isLogMonit()) {
       this.monitorSubject = new Subject<B103ExtractedData>();
 
-      // excel 출력전 압축로직을 모방하여 초당 1회 로깅
+      /*
+      excel 출력 요약로직을 이용하여 파일에 로그 쓰고
+      아래 명령으로 모니터링
+      tail -F /tmp/monit_log 2>/dev/null
+      */
       this.monitorSubject.pipe(
         X.bufferTime(1000),
         X.map(dataArr => dataArr.map(data => this.logFactory.create(data))),
         this.logExcelService.summarizeLogsBySecond(),
       ).subscribe(logArr => {
         logArr.forEach(log => {
-          console.log(log);
+          writeFile("/tmp/monit_log", JSON.stringify(log, null, 2) + "\n");
         });
       });
 
