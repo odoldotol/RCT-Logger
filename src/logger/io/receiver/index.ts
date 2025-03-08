@@ -29,6 +29,9 @@ import {
   IPCMessage
 } from "./child";
 
+/**
+ * @todo 차일드 추상화
+ */
 export class Receiver
   implements IO
 {
