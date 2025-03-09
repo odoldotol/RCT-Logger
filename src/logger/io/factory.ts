@@ -12,6 +12,7 @@ import {
 } from "./led";
 import { LedGpioName } from "../../config";
 import { Ar20 } from "./receiver/status/ar20";
+import { ChildMaster as SerialChildMaster } from "./receiver/child";
 
 
 class IOFactoryStatic {
@@ -19,10 +20,12 @@ class IOFactoryStatic {
   public create(ioInterface: IOInterface) {
     const ar20 = new Ar20(Config.gpioConfigService);
 
+    const serialChild = new SerialChildMaster();
     const receiverStatus = new ReceiverStatus(ar20);
     const rctProtocol = new RCTProtocol();
 
     const receiver = new Receiver(
+      serialChild,
       receiverStatus,
       rctProtocol,
       ioInterface.receiver,

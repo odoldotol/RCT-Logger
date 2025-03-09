@@ -1,4 +1,4 @@
-import { Child } from "./";
+import { ChildSlave as SerialChildSlave } from "./slave";
 import { ReceiverDataFactory } from "../data";
 import { Heartbeat } from "../../../app/heartbeat";
 import { Config } from "../../../../config/init";
@@ -8,12 +8,12 @@ const receiverData = ReceiverDataFactory.create();
 const heartbeat = new Heartbeat(
   Config.heartbeatConfigService.getHeartbeat(HeartbeatName.CHILD),
   null,
-  Child.errorHandler,
+  SerialChildSlave.errorHandler,
 );
 
-const child = new Child(
+const serialChild = new SerialChildSlave(
   receiverData,
   heartbeat,
 );
 
-child.activate();
+serialChild.activate();
