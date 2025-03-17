@@ -2,7 +2,7 @@ import { Config } from "../../../../config/init";
 import { ReceiverData } from ".";
 import { ReceiverSerialClk } from "./clk";
 import { ReceiverSerial } from "./serial";
-import { Child } from "../child";
+import { ChildSlave as Child } from "../child";
 
 class ReceiverDataFactoryStatic {
 
