@@ -8,7 +8,7 @@ import { Logger } from "../common";
 
 async function bootstrap() {
 
-  const logger = new Logger('Logger');
+  const logger = new Logger('RCTLogger');
 
   const ioInterface = IOInterfaceFactory.create();
   
@@ -30,7 +30,7 @@ async function bootstrap() {
   app.listen();
   await io.open();
   
-  logger.log('Logger is working...');
+  logger.log('is working...');
 
   app.run();
 
