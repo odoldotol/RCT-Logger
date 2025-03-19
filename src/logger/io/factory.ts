@@ -12,7 +12,7 @@ import {
 } from "./led";
 import { LedGpioName } from "../../config";
 import { Ar20 } from "./receiver/status/ar20";
-import { ChildMaster as SerialChildMaster } from "./receiver/child";
+import { ChildMaster as SerialChildMaster } from "./receiver/serial";
 
 
 class IOFactoryStatic {

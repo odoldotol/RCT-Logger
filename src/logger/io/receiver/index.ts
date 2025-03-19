@@ -1,17 +1,17 @@
 import { Readable } from "node:stream";
 import {
+  AsyncOpenIO,
   B103ExtractedData,
   B192DataWord6,
   B1Subject,
   extractWordData,
-  IO,
   packDateBuffer,
   SubjectValue,
 } from "../../../common";
 import {
   ChildMaster as SerialChildMaster,
   ChildMasterEvent
-} from "./child";
+} from "./serial";
 import {
   ReceiverStatus,
   Status,
@@ -27,7 +27,7 @@ import {
  * @todo 차일드 추상화
  */
 export class Receiver
-  implements IO
+  implements AsyncOpenIO
 {
   private serialStream = new Readable();
 
@@ -52,11 +52,15 @@ export class Receiver
     .on(Status.ON, this.onHandler.bind(this))
     .on(Status.OFF, this.offHandler.bind(this))
     .open();
+
+    return true;
   }
 
   public close() {
     this.status.close();
     this.serialChild.close();
+
+    return true;
   }
 
   private processSerial() {

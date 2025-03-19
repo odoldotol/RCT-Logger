@@ -14,7 +14,7 @@ export class Heartbeat
   constructor(
     private readonly config: HeartbeatConfig,
     private readonly ledInterface: LedInterface | null = null,
-    private readonly error: (...args: any[]) => void = Logger.prototype.error.bind(new Logger(Heartbeat.name)),
+    private readonly error: (...args: any[]) => any = Logger.prototype.error.bind(new Logger(Heartbeat.name)),
   ) {}
 
   public run(): void {

@@ -1,9 +1,12 @@
+import {
+  Logger,
+  Runner
+} from "../../../../common";
 import { GpioOnoff } from "../../gpio";
 import {
   GpioConfigService,
   ReceiverGpioName
 } from "../../../../config";
-import { Runner } from "../../../../common";
 
 /**
  * @todo logger 주입받지 말기
@@ -14,16 +17,16 @@ export class ReceiverSerialClk
 {
   constructor(
     gpioConfigService: GpioConfigService,
-    private readonly log: (log: string) => void,
+    private readonly logger: Logger,
   ) {
     super(gpioConfigService.getReceiverGpioConfig(ReceiverGpioName.SERIAL_CLK));
 
-    this.log(`[SerialClk] GPIO${this.config.pin} Initialized.`);
+    this.logger.log(`GPIO${this.config.pin} Initialized.`);
   }
 
   public run() {
     if (this.isOpen() == false) {
-      this.log(`SerialClk Cannot run because it is not opened.`);
+      this.logger.log(`SerialClk Cannot run because it is not opened.`);
       return;
     }
 

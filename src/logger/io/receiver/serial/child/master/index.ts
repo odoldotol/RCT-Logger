@@ -8,17 +8,17 @@ import {
   Readable
 } from "node:stream";
 import {
-  IO,
+  AsyncOpenIO,
   Logger,
   Runner
-} from "../../../../common";
-import { IPCMessage } from "./interface";
-import { Signal } from "./const";
+} from "../../../../../../common";
+import { IPCMessage } from "../interface";
+import { Signal } from "../const";
 import P from "node:path";
 
 export class ChildMaster
   extends EventEmitter<ChildMasterEventMap>
-  implements IO, Runner
+  implements AsyncOpenIO, Runner
 {
   private readonly logger = new Logger(ChildMaster.name);
 
@@ -46,9 +46,9 @@ export class ChildMaster
 
     this.ipc({ signal: Signal.Open });
 
-    return new Promise<void>((resolve) => {
+    return new Promise<boolean>((resolve) => {
       this.waitingOpenedChildResolver = () => {
-        resolve();
+        resolve(true);
         this.waitingOpenedChildResolver = null;
       };
     });
@@ -56,6 +56,8 @@ export class ChildMaster
 
   public close() {
     this.ipc({ signal: Signal.Close });
+
+    return true;
   }
 
   public run() {
@@ -85,7 +87,7 @@ export class ChildMaster
   }
 
   private fork(): ChildProcess {
-    const path = P.resolve(__dirname, "init.js");
+    const path = P.resolve(__dirname, "../slave/main.js");
 
     return fork(path,
       { stdio: ['pipe', 'pipe', 'pipe', 'ipc'] }
@@ -133,7 +135,7 @@ export class ChildMaster
     .on('message', (message: IPCMessage) => {
       switch (message.signal) {
         case Signal.Log:
-          message.log && this.logger.log(`Child | ${message.log}`);
+          message.log && console.log(message.log);
           break;
         case Signal.Activated:
           if (this.waitingActivatedChildResolver == null) {
@@ -170,8 +172,10 @@ export class ChildMaster
       this.emit(ChildMasterEvent.Restarted);
     });
 
+    this.child.stderr?.setEncoding('utf8');
+
     this.child.stderr?.on('data', (data) => {
-      console.error(`stderr: ${data}`);
+      console.error(data);
     });
     
     this.child.stderr?.on('error', (err) => {
