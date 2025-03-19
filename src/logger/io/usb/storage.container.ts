@@ -31,9 +31,9 @@ export class UsbStorageContainer {
   }
 
   /**
-   * 전부 언마운트하고 마운트 포인트 삭제하고 컨테이너 비움.
+   * @todo 전부 언마운트하고 마운트 포인트 삭제하고 컨테이너 비움.
    */
-  public async clear() {
+  public clear() {
     this.container.clear();
   }
 

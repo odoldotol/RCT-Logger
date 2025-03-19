@@ -54,7 +54,7 @@ export class ReceiverStatus
    */
   public open() {
     if (this.ar20.isOpen() == true) {
-      return;
+      return false;
     }
 
     this.ar20.open();
@@ -87,16 +87,20 @@ export class ReceiverStatus
     }
 
     this.ar20.setEdge("both");
+
+    return true;
   }
 
   public close() {
     if (this.ar20.isOpen() == false) {
-      return;
+      return false;
     }
 
     this.ar20.close();
 
     this.fallHandler(StatusEventCode.Close);
+
+    return true;
   }
 
   public isOn(): boolean {

@@ -28,7 +28,7 @@ export class Led
     this.logger.log(`GPIO${this.config.pin} Initialized.`);
   }
 
-  public override open(): void {
+  public override open() {
     super.open();
 
     // Onoff 는 reconfigureDirection == false 면 초기화때 방향을 재구성하면서 Level 도 0 으로 셋하게 됨.
@@ -41,7 +41,7 @@ export class Led
     }
 
     if (this.subscription) {
-      return;
+      return false;
     }
 
     this.subscription = this.ledInterface.getLevelStream()
@@ -52,9 +52,11 @@ export class Led
         }
       });
     });
+
+    return true;
   }
 
-  public override close(): void {
+  public override close() {
     if (this.subscription) {
       this.subscription.unsubscribe();
       this.subscription = null;
@@ -67,6 +69,8 @@ export class Led
     }
 
     super.close();
+
+    return true;
   }
 
 }

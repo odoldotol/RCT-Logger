@@ -24,12 +24,14 @@ export class Ar20
 
   public override open() {
     if (this.isOpen() == true) {
-      return;
+      return false;
     }
 
     super.open();
 
     this.setEdge("both");
+
+    return true;
   }
 
 }

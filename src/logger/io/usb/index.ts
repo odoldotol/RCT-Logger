@@ -34,11 +34,15 @@ export class Usb
   public open() {
     this.listenUdev();
     this.listenInterface();
+
+    return true;
   }
 
-  public async close() {
+  public close() {
     this.blockMonitor.removeAllListeners();
-    await this.usbStorageContainer.clear();
+    this.usbStorageContainer.clear();
+
+    return true;
   }
 
   private listenUdev() {

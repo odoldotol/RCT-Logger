@@ -25,13 +25,17 @@ export abstract class GpioPigpio
     }
   }
 
-  public open() {}
+  public open() {
+    return true;
+  }
 
   public close() {
     this.disableAlert();
     this.disableInterrupt();
 
     this.removeAllListeners();
+
+    return true;
   }
 
 }

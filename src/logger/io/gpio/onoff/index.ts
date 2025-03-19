@@ -1,11 +1,15 @@
 import {
   Gpio as Onoff,
 } from 'onoff';
-import { Direction } from '../../../../common';
+import {
+  Direction,
+  IO
+} from '../../../../common';
 import { GpioConfig } from '../../../../config';
 
 export abstract class GpioOnoff
   extends Onoff
+  implements IO
 {
   private _isOpen = false;
 
@@ -31,11 +35,13 @@ export abstract class GpioOnoff
 
   public open() {
     this._isOpen = true;
+
+    return true;
   }
 
   public close() {
     if (this.isOpen() == false) {
-      return;
+      return false;
     }
 
     this.unwatchAll();
@@ -43,6 +49,8 @@ export abstract class GpioOnoff
     this.unexport();
 
     this._isOpen = false;
+
+    return true;
   }
 
   public isOpen(): boolean {
