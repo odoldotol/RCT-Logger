@@ -1,5 +1,7 @@
 export class Logger
 {
+  protected name = "RCTLogger";
+
   constructor(
     private readonly context: string,
   ) {}
@@ -16,6 +18,7 @@ export class Logger
   public error(
     message: string,
     error?: any,
+    ...optionalParams: any[]
   ): void {
     console.error(this.write(
       message,
@@ -23,7 +26,7 @@ export class Logger
     ));
 
     if (error) {
-      console.error(error);
+      console.error(error, ...optionalParams);
     }
   }
 
@@ -36,11 +39,11 @@ export class Logger
     ));
   }
 
-  private write(
+  protected write(
     message: string,
     level: string,
   ): string {
-    return `[RCTLogger] ${process.pid}   - ${this.getDate()} ${level.padStart(7)} [${this.context}] ${message}`;
+    return `[${this.name}] ${process.pid}   - ${this.getDate()} ${level.padStart(7)} [${this.context}] ${message}`;
   }
 
   private getDate(): string {
