@@ -43,7 +43,7 @@ export class Logger
     message: string,
     level: string,
   ): string {
-    return `[${this.name}] ${process.pid}   - ${this.getDate()} ${level.padStart(7)} [${this.context}] ${message}`;
+    return `[${this.name.padEnd(20)}] ${process.pid.toString().padEnd(7)} - ${this.getDate()} ${level.padStart(7)} [${this.context}] ${message}`;
   }
 
   private getDate(): string {
