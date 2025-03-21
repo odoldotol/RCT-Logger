@@ -1,4 +1,3 @@
-import { Readable } from "node:stream";
 import {
   AsyncOpenIO,
   B103ExtractedData,
@@ -29,8 +28,6 @@ import {
 export class Receiver
   implements AsyncOpenIO
 {
-  private serialStream = new Readable();
-
   constructor(
     private readonly serialChild: SerialChildMaster,
     private readonly status: ReceiverStatus,
@@ -40,18 +37,8 @@ export class Receiver
   ) {}
 
   public async open() {
-    await this.serialChild
-    .on(ChildMasterEvent.Restarted, this.childRestartedHandler.bind(this))
-    .open();
-
-    this.serialStream = this.serialChild.getSerialStream();
-
-    this.processSerial();
-
-    this.status
-    .on(Status.ON, this.onHandler.bind(this))
-    .on(Status.OFF, this.offHandler.bind(this))
-    .open();
+    await this.openSerial();
+    this.openStatus();
 
     return true;
   }
@@ -63,9 +50,26 @@ export class Receiver
     return true;
   }
 
+  private async openSerial() {
+    this.serialChild.removeAllListeners();
+
+    await this.serialChild
+    .on(ChildMasterEvent.Restarted, this.childRestartedHandler.bind(this))
+    .open();
+
+    this.processSerial();
+  }
+
+  private openStatus() {
+    this.status
+    .on(Status.ON, this.onHandler.bind(this))
+    .on(Status.OFF, this.offHandler.bind(this))
+    .open();
+  }
+
   private processSerial() {
     // Todo - Refac: Non-following mode, PassThrough/Transform 스트림 등을 pipeline 으로 채이닝
-    this.serialStream
+    this.serialChild.getSerialStream()
     .pipe(this.rctProtocol)
     .on('data', (data: B192DataWord6) => {
       this.testLedInterface.blinkOnce();
@@ -103,7 +107,7 @@ export class Receiver
   }
 
   private async childRestartedHandler() {
-    await this.open();
+    await this.openSerial();
 
     if (this.status.isOn() == true) {
       this.rctProtocol.reset();
