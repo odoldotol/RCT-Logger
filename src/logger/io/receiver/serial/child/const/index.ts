@@ -1,4 +1,4 @@
-export const enum Signal {
+export const enum MessageSubject {
   Close,
   Open,
   Stop,

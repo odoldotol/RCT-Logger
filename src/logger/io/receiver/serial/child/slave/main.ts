@@ -2,7 +2,7 @@ import { HeartbeatName } from "../../../../../../config";
 import { Config } from "../../../../../../config/init";
 import { Heartbeat } from "../../../../../app/heartbeat";
 import { ReceiverSerialFactory } from "../../factory";
-import { Signal } from "../const";
+import { MessageSubject } from "../const";
 import { IPCMessage } from "../interface";
 import { ipc } from "./ipc";
 import { SlaveLogger } from "./logger";
@@ -32,7 +32,7 @@ async function bootstrap() {
   
   listenIpc();
 
-  ipc({ signal: Signal.Activated });
+  ipc({ subject: MessageSubject.Activated });
 
   function listenSignal() {
     process
@@ -48,20 +48,20 @@ async function bootstrap() {
 
   function listenIpc() {
     process.on("message", (msg: IPCMessage) => {
-      switch (msg.signal) {
-        case Signal.Open:
+      switch (msg.subject) {
+        case MessageSubject.Open:
           receiverSerial.open();
-          ipc({ signal: Signal.Open });
+          ipc({ subject: MessageSubject.Open });
           heartbeat.run();
           break;
-        case Signal.Close:
+        case MessageSubject.Close:
           heartbeat.stop();
           receiverSerial.close();
           break;
-        case Signal.Run:
+        case MessageSubject.Run:
           receiverSerial.run();
           break;
-        case Signal.Stop:
+        case MessageSubject.Stop:
           receiverSerial.stop();
           break;
         default:

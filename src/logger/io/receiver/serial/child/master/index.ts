@@ -13,7 +13,7 @@ import {
   Runner
 } from "../../../../../../common";
 import { IPCMessage } from "../interface";
-import { Signal } from "../const";
+import { MessageSubject } from "../const";
 import P from "node:path";
 
 export class ChildMaster
@@ -44,7 +44,7 @@ export class ChildMaster
 
     await this.waitingActivatedChild;
 
-    this.ipc({ signal: Signal.Open });
+    this.ipc({ subject: MessageSubject.Open });
 
     return new Promise<boolean>((resolve) => {
       this.waitingOpenedChildResolver = () => {
@@ -55,17 +55,17 @@ export class ChildMaster
   }
 
   public close() {
-    this.ipc({ signal: Signal.Close });
+    this.ipc({ subject: MessageSubject.Close });
 
     return true;
   }
 
   public run() {
-    this.ipc({ signal: Signal.Run });
+    this.ipc({ subject: MessageSubject.Run });
   }
 
   public stop() {
-    this.ipc({ signal: Signal.Stop });
+    this.ipc({ subject: MessageSubject.Stop });
   }
 
   public getSerialStream(): Readable {
@@ -102,7 +102,7 @@ export class ChildMaster
     .on('spawn', () => {
       this.logger.log(`Child spawned, PID: ${this.child.pid}`);
 
-      exec(`chrt -r -p 1 ${this.child.pid}`, (error, stdout, stderr) => {
+      exec(`chrt -f -p 99 ${this.child.pid}`, (error, stdout, stderr) => {
         if (error) {
           console.error(`chrt error: ${error.message}`);
           return;
@@ -133,18 +133,18 @@ export class ChildMaster
       });
     })
     .on('message', (message: IPCMessage) => {
-      switch (message.signal) {
-        case Signal.Log:
+      switch (message.subject) {
+        case MessageSubject.Log:
           message.log && console.log(message.log);
           break;
-        case Signal.Activated:
+        case MessageSubject.Activated:
           if (this.waitingActivatedChildResolver == null) {
             this.logger.warn("Child activated but no resolver.");
           } else {
             this.waitingActivatedChildResolver();
           }
           break;
-        case Signal.Open:
+        case MessageSubject.Open:
           if (this.waitingOpenedChildResolver == null) {
             this.logger.warn("Child opened but no resolver.");
           } else {

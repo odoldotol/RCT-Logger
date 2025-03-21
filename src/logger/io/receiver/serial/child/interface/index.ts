@@ -1,8 +1,8 @@
 import { Serializable } from "child_process";
-import { Signal } from "../const";
+import { MessageSubject } from "../const";
 
 export interface IPCMessage {
-  signal: Signal;
+  subject: MessageSubject;
   log?: string;
   data?: Serializable;
 }

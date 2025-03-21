@@ -1,5 +1,5 @@
 import { Logger } from "../../../../../../common";
-import { Signal } from "../const";
+import { MessageSubject } from "../const";
 import { ipc } from "./ipc";
 
 export class SlaveLogger
@@ -15,7 +15,7 @@ export class SlaveLogger
 
   override log(message: string) {
     ipc({
-      signal: Signal.Log,
+      subject: MessageSubject.Log,
       log: this.write(
         message,
         "LOG",
