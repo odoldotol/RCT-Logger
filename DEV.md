@@ -196,6 +196,10 @@ Wifi 통한 SSH 접속
 
 <br>
 
+[] C 로 리팩토링 (특히, Serial Data, Ar20 부분)
+
+<br>
+
 ## Lib
 
 <br>
